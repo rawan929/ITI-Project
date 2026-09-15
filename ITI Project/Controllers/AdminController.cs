@@ -15,21 +15,21 @@ namespace ITI_Project.Controllers
             _adminService = adminService;
         }
 
-        // 1. تبويب Overview (الروت الرئيسي للـ Dashboard)
+     
         public async Task<IActionResult> Index()
         {
             var stats = await _adminService.GetDashboardStatsAsync();
             return View(stats);
         }
 
-        // 2. تبويب Analytics (جديد: ليطابق تبويب Analytics بالفيجما)
+
         public async Task<IActionResult> Analytics()
         {
             var stats = await _adminService.GetDashboardStatsAsync();
             return View(stats);
         }
 
-        // 3. تبويب Users (معدل: ليطابق تبويب Users وشاشة Top Donors بالفيجما)
+        
         [HttpGet]
         
         public async Task<IActionResult> Users()
@@ -38,14 +38,12 @@ namespace ITI_Project.Controllers
             return View(donors);
         }
 
-        // 4. شاشة المستشفيات المعلقة
         public async Task<IActionResult> PendingHospitals()
         {
             var pendingHospitals = await _adminService.GetPendingHospitalsAsync();
             return View(pendingHospitals);
         }
 
-        // 5. أكشن اعتماد مستشفى
         [HttpPost]
         public async Task<IActionResult> ApproveHospital(Guid id)
         {
@@ -53,7 +51,6 @@ namespace ITI_Project.Controllers
             return RedirectToAction(nameof(PendingHospitals));
         }
 
-        // 6. أكشن اعتماد بنك دم (جديد: لتغطية اعتماد بنوك الدم)
         [HttpPost]
         public async Task<IActionResult> ApproveBloodBank(Guid id)
         {
