@@ -1,0 +1,139 @@
+﻿@model List<ITI.BLL.ViewModel.DonorVM>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Users Management";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    .bg-admin-dark { background-color: #0A1628; }
+    .text-rose-brand { color: #C41230; }
+    .bg-rose-brand { background-color: #C41230; }
+</style>
+
+<!-- Dark Admin Header -->
+<div class="bg-admin-dark text-white -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 px-6 sm:px-8 pt-8 pb-0 mb-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-rose-brand rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-900/40">
+                    <i class="fa-solid fa-users text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">System Administration</p>
+                    <h1 class="text-2xl font-bold tracking-tight font-serif">User Management</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex gap-8 text-sm font-medium border-b border-slate-800">
+            <a asp-controller="Admin" asp-action="Index" class="pb-3 text-slate-400 hover:text-slate-200 transition">Overview</a>
+            <a asp-controller="Admin" asp-action="Analytics" class="pb-3 text-slate-400 hover:text-slate-200 transition">Analytics</a>
+            <a asp-controller="Admin" asp-action="Users" class="pb-3 border-b-2 border-rose-brand text-white font-semibold">Users</a>
+            <a asp-controller="Admin" asp-action="PendingHospitals" class="pb-3 text-slate-400 hover:text-slate-200 transition">Approvals</a>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Top Donors Table -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-900">Top Donors</h3>
+            <span class="text-xs text-slate-400">All time · By donation count</span>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="p-8 border border-dashed border-slate-200 rounded-xl text-center text-slate-400 text-sm">
+                <i class="fa-solid fa-user-gear text-3xl mb-3 text-slate-300"></i>
+                <p>No donors registered yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-xs text-slate-500 uppercase border-b border-slate-200">
+                            <th class="py-3 pr-4 font-semibold">#</th>
+                            <th class="py-3 pr-4 font-semibold">Donor</th>
+                            <th class="py-3 pr-4 font-semibold">Blood Type</th>
+                            <th class="py-3 pr-4 font-semibold">Total Donations</th>
+                            <th class="py-3 pr-4 font-semibold">City</th>
+                            <th class="py-3 pr-4 font-semibold">Status</th>
+                            <th class="py-3 pr-4 font-semibold">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int i = 1; }
+                        @foreach (var donor in Model)
+                        {
+                            <tr class="border-b border-slate-100">
+                                <td class="py-4 pr-4 text-slate-400">#@i</td>
+                                <td class="py-4 pr-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 bg-admin-dark text-white rounded-lg flex items-center justify-center text-xs font-bold">
+                                            @donor.Initials
+                                        </div>
+                                        <span class="font-medium text-slate-900">@donor.FullName</span>
+                                    </div>
+                                </td>
+                                <td class="py-4 pr-4 font-bold text-rose-brand">@donor.BloodType</td>
+                                <td class="py-4 pr-4 font-semibold text-slate-900">@donor.TotalDonations</td>
+                                <td class="py-4 pr-4 text-slate-500">@donor.City</td>
+                                <td class="py-4 pr-4">
+                                    @if (donor.IsActive)
+                                    {
+                                        <span class="px-2.5 py-1 text-xs rounded-full bg-green-100 text-green-700 font-medium">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-2.5 py-1 text-xs rounded-full bg-slate-100 text-slate-500 font-medium">Inactive</span>
+                                    }
+                                </td>
+                                <td class="py-4 pr-4">
+                                    <form asp-action="ToggleUserStatus" asp-controller="Admin" method="post" class="inline">
+                                        <input type="hidden" name="id" value="@donor.Id" />
+                                        @if (donor.IsActive)
+                                        {
+                                            <button type="submit" class="px-3 py-1.5 text-xs border border-slate-300 rounded-lg hover:bg-slate-50 font-medium">Deactivate</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="px-3 py-1.5 text-xs border border-green-300 text-green-700 rounded-lg hover:bg-green-50 font-medium">Activate</button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-8">
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+        <p class="text-3xl font-bold font-serif text-slate-900">18</p>
+        <p class="text-xs text-slate-400 mt-1">New Registrations (7d)</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+        <p class="text-3xl font-bold font-serif text-slate-900">247</p>
+        <p class="text-xs text-slate-400 mt-1">Active Donors (30d)</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+        <p class="text-3xl font-bold font-serif text-slate-900">12 min</p>
+        <p class="text-xs text-slate-400 mt-1">Avg. Response Time</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+        <p class="text-3xl font-bold font-serif text-slate-900">92.4%</p>
+        <p class="text-xs text-slate-400 mt-1">Request Fulfillment</p>
+    </div>
+</div>
+</div>

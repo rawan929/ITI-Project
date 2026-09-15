@@ -1,0 +1,105 @@
+﻿@model IEnumerable<ITI.BLL.ViewModel.PendingApprovalsVM>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Approvals";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    .bg-admin-dark { background-color: #0A1628; }
+    .text-rose-brand { color: #C41230; }
+    .bg-rose-brand { background-color: #C41230; }
+</style>
+
+<!-- Dark Admin Header -->
+<div class="bg-admin-dark text-white -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 px-6 sm:px-8 pt-8 pb-0 mb-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-rose-brand rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-900/40">
+                    <i class="fa-solid fa-check-double text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">System Administration</p>
+                    <h1 class="text-2xl font-bold tracking-tight font-serif">Pending Approvals</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex gap-8 text-sm font-medium border-b border-slate-800">
+            <a asp-controller="Admin" asp-action="Index" class="pb-3 text-slate-400 hover:text-slate-200 transition">Overview</a>
+            <a asp-controller="Admin" asp-action="Analytics" class="pb-3 text-slate-400 hover:text-slate-200 transition">Analytics</a>
+            <a asp-controller="Admin" asp-action="Users" class="pb-3 text-slate-400 hover:text-slate-200 transition">Users</a>
+            <a asp-controller="Admin" asp-action="PendingHospitals" class="pb-3 border-b-2 border-rose-brand text-white font-semibold">Approvals</a>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto">
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+            <div>
+                <h3 class="font-bold text-slate-900">Hospital & Blood Bank Requests</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Review and authorize pending entity registrations</p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] font-bold tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4">Entity Name</th>
+                        <th class="px-6 py-4">Type</th>
+                        <th class="px-6 py-4">Address</th>
+                        <th class="px-6 py-4 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="px-6 py-4 font-semibold text-slate-900">@item.Name</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 text-xs font-bold rounded-full @(item.Type == "Hospital" ? "bg-blue-50 text-blue-600 border border-blue-200/60" : "bg-purple-50 text-purple-600 border border-purple-200/60")">
+                                        @item.Type
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-slate-500">@item.Address</td>
+                                <td class="px-6 py-4 text-right">
+                                    @if (item.Type == "Hospital")
+                                    {
+                                        <form asp-controller="Admin" asp-action="ApproveHospital" asp-route-id="@item.Id" method="post" class="inline">
+                                            <button type="submit" class="text-xs font-semibold px-4 py-2 rounded-xl border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition shadow-sm">
+                                                Approve Hospital
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-controller="Admin" asp-action="ApproveBloodBank" asp-route-id="@item.Id" method="post" class="inline">
+                                            <button type="submit" class="text-xs font-semibold px-4 py-2 rounded-xl border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition shadow-sm">
+                                                Approve Blood Bank
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-slate-400 text-xs">
+                                No pending approval requests found.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

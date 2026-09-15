@@ -1,0 +1,235 @@
+﻿@model ITI.BLL.ViewModel.AdminDashboardVm
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Overview";
+}
+
+<!-- Google Fonts & FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    .bg-admin-dark { background-color: #0A1628; }
+    .text-rose-brand { color: #C41230; }
+    .bg-rose-brand { background-color: #C41230; }
+</style>
+
+<!-- Dark Sub-Header (Admin Header) -->
+<div class="bg-admin-dark text-white -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 px-6 sm:px-8 pt-8 pb-0 mb-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-rose-brand rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-900/40">
+                    <i class="fa-solid fa-border-all text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">System Administration</p>
+                    <h1 class="text-2xl font-bold tracking-tight font-serif">BloodLink<span class="text-rose-brand">+</span> Admin</h1>
+                    <p class="text-xs text-slate-400 mt-0.5">Last updated Sep 14, 2026 · 09:31 AM</p>
+                </div>
+            </div>
+            
+            <div class="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                System Online
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex gap-8 text-sm font-medium border-b border-slate-800">
+            <a asp-controller="Admin" asp-action="Index" class="pb-3 border-b-2 border-rose-brand text-white font-semibold">Overview</a>
+            <a asp-controller="Admin" asp-action="Analytics" class="pb-3 text-slate-400 hover:text-slate-200 transition">Analytics</a>
+            <a asp-controller="Admin" asp-action="Users" class="pb-3 text-slate-400 hover:text-slate-200 transition">Users</a>
+            <a asp-controller="Admin" asp-action="PendingHospitals" class="pb-3 text-slate-400 hover:text-slate-200 transition">Approvals</a>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- 6 Top Cards Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <!-- Total Users -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="text-2xl font-bold font-serif text-slate-900">18,402</div>
+            <div class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-1">TOTAL USERS</div>
+            <div class="text-[11px] text-slate-400 mt-2">+124 this week</div>
+        </div>
+
+        <!-- Donors -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="text-2xl font-bold font-serif text-slate-900">@Model.TotalDonors</div>
+            <div class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-1">DONORS</div>
+            <div class="text-[11px] text-slate-400 mt-2">+89 this week</div>
+        </div>
+
+        <!-- Hospitals -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="text-2xl font-bold font-serif text-slate-900">@Model.ApprovedHospitals</div>
+            <div class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-1">HOSPITALS</div>
+            <div class="text-[11px] text-slate-400 mt-2">+3 this month</div>
+        </div>
+
+        <!-- Blood Banks -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="text-2xl font-bold font-serif text-slate-900">@Model.ApprovedBloodBanks</div>
+            <div class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-1">BLOOD BANKS</div>
+            <div class="text-[11px] text-slate-400 mt-2">+1 this month</div>
+        </div>
+
+        <!-- Active Requests -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="text-2xl font-bold font-serif text-slate-900">@Model.ActiveBloodRequests</div>
+            <div class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-1">ACTIVE REQUESTS</div>
+            <div class="text-[11px] text-slate-400 mt-2">12 critical</div>
+        </div>
+
+        <!-- Emergency Today -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="text-2xl font-bold font-serif text-slate-900">7</div>
+            <div class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-1">EMERGENCY TODAY</div>
+            <div class="text-[11px] text-slate-400 mt-2">3 pending match</div>
+        </div>
+    </div>
+
+    <!-- Pending Approvals Banner -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-amber-100/80 rounded-xl flex items-center justify-center text-amber-600 font-bold">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 tracking-wider uppercase">PENDING APPROVALS</p>
+                <div class="text-2xl font-bold font-serif text-slate-900">@Model.PendingHospitals</div>
+                <p class="text-xs text-slate-400 mt-0.5">2 Hospitals · 1 Blood Bank awaiting review</p>
+            </div>
+        </div>
+        <a asp-controller="Admin" asp-action="PendingHospitals" class="bg-amber-50/50 hover:bg-amber-100 text-amber-800 text-xs font-semibold px-5 py-2.5 rounded-xl border border-amber-200/60 transition">
+            Review Requests
+        </a>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Monthly Donations -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-slate-900">Monthly Donations</h3>
+                    <p class="text-xs text-slate-400">Last 7 months</p>
+                </div>
+                <span class="bg-emerald-50 text-emerald-600 text-xs font-bold px-3 py-1 rounded-md border border-emerald-200/60">+12.4% vs last month</span>
+            </div>
+            <div class="h-64">
+                <canvas id="monthlyDonationsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Blood Inventory -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+            <h3 class="font-bold text-slate-900">Blood Inventory</h3>
+            <p class="text-xs text-slate-400 mb-4">569 total units</p>
+            <div class="h-56 relative flex items-center justify-center">
+                <canvas id="inventoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Requests vs Pending & Live Feed Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Requests Fulfilled vs Pending -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+            <h3 class="font-bold text-slate-900">Requests Fulfilled vs Pending</h3>
+            <p class="text-xs text-slate-400 mb-4">Last 7 months</p>
+            <div class="h-60">
+                <canvas id="requestsLineChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Live Activity Feed -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+            <h3 class="font-bold text-slate-900 mb-4">Live Activity Feed</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <span class="text-rose-brand"><i class="fa-solid fa-droplet text-lg"></i></span>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-900">Sarah Mitchell</p>
+                            <p class="text-[11px] text-slate-400">Donated O- at City Blood Bank</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-slate-400">10 min ago</span>
+                </div>
+
+                <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <span class="text-amber-500"><i class="fa-regular fa-clipboard text-lg"></i></span>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-900">City General Hospital</p>
+                            <p class="text-[11px] text-slate-400">Emergency request for O- (4 units)</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-slate-400">12 min ago</span>
+                </div>
+
+                <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <span class="text-indigo-600"><i class="fa-solid fa-user text-lg"></i></span>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-900">Alex Fontaine</p>
+                            <p class="text-[11px] text-slate-400">Registered as a new donor (A+)</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-slate-400">45 min ago</span>
+                </div>
+
+                <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <span class="text-emerald-500"><i class="fa-square-check text-lg"></i></span>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-900">Red Cross Center</p>
+                            <p class="text-[11px] text-slate-400">Fulfilled request REQ-2026-08702</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-slate-400">1 hour ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Config -->
+<script>
+    new Chart(document.getElementById('monthlyDonationsChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+            datasets: [{ data: [450, 420, 510, 480, 530, 590, 610], backgroundColor: '#C41230', borderRadius: 4 }]
+        },
+        options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+    });
+
+    new Chart(document.getElementById('inventoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+            datasets: [{
+                data: [30, 10, 20, 5, 15, 5, 35, 10],
+                backgroundColor: ['#E11D48', '#FB7185', '#2563EB', '#60A5FA', '#059669', '#34D399', '#D97706', '#FBBF24']
+            }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } }, responsive: true, maintainAspectRatio: false }
+    });
+
+    new Chart(document.getElementById('requestsLineChart'), {
+        type: 'line',
+        data: {
+            labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+            datasets: [
+                { label: 'fulfilled', data: [90, 85, 120, 105, 140, 150, 120], borderColor: '#10B981', backgroundColor: '#10B981', tension: 0.4 },
+                { label: 'pending', data: [20, 18, 25, 20, 15, 22, 18], borderColor: '#C41230', borderDash: [4, 4], backgroundColor: '#C41230', tension: 0.4 }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+</script>
