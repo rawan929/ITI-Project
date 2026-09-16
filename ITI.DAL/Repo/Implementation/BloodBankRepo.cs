@@ -33,6 +33,11 @@ namespace ITI.DAL.Repo.Implementation
         }
 
         public async Task<int> GetApprovedCountAsync() => await _context.BloodBanks.CountAsync(b => b.IsApproved);
+
+        public async Task<IEnumerable<BloodBank>> GetAllApprovedCountAsync()
+        {
+            return await _context.BloodBanks.Where(b => b.IsApproved).ToListAsync();
+        }
     }
 }
 

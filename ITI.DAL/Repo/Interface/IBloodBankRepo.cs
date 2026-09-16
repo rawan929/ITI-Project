@@ -10,5 +10,6 @@ namespace ITI.DAL.Repo.Interface
         Task<BloodBank?> GetByIdAsync(Guid id);
         Task UpdateBloodBankAsync(BloodBank bloodBank);
         Task<int> GetApprovedCountAsync();
+        Task<IEnumerable<BloodBank>> GetAllApprovedCountAsync();
     }
 }
