@@ -37,6 +37,11 @@ namespace ITI_Project
             .AddEntityFrameworkStores<AppDbcontext>()
             .AddDefaultTokenProviders();
 
+            builder.Services.AddScoped<IAppointmentRepo, AppointmentRepo>();
+            builder.Services.AddScoped<IDonationRepo , DonationRepo>();
+
+            builder.Services.AddScoped<IAppointmentService , AppointmentService>();
+            builder.Services.AddScoped<IDonationService , DonationService>();
 
             var app = builder.Build();
 

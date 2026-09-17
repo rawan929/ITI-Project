@@ -1,0 +1,44 @@
+﻿@model ITI.BLL.ViewModel.CreateAppointmentVM
+
+@{
+    ViewData["Title"] = "Create Appointment";
+}
+
+<div class="container mt-4">
+    <h2>Create New Appointment</h2>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+               
+                <div class="form-group mb-3">
+                    <label asp-for="DonorId" class="control-label">معرف المتبرع (Donor ID)</label>
+                    <input asp-for="DonorId" class="form-control" />
+                    <span asp-validation-for="DonorId" class="text-danger"></span>
+                </div>
+
+                
+                <div class="form-group mb-3">
+                    <label asp-for="BloodBankId" class="control-label">معرف بنك الدم (Blood Bank ID)</label>
+                    <input asp-for="BloodBankId" class="form-control" />
+                    <span asp-validation-for="BloodBankId" class="text-danger"></span>
+                </div>
+
+                
+                <div class="form-group mb-3">
+                    <label asp-for="AppointmentDate" class="control-label">تاريخ الموعد</label>
+                    <input asp-for="AppointmentDate" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-primary">حفظ الموعد</button>
+                    <a asp-action="Index" class="btn btn-secondary">إلغاء</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
