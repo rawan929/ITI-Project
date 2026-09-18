@@ -8,6 +8,7 @@ namespace ITI.DAL.Repo.Interface
     public interface IDonorRepo
     {
         Task<IEnumerable<Donor>> GetAllDonorsWithDetailsAsync();
-        Task AddDonorAsync(Donor donor);  
+        Task AddDonorAsync(Donor donor);
+        Task<Donor?> GetByUserIdWithDetailsAsync(Guid userId);
     }
 }
