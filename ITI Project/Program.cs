@@ -42,6 +42,7 @@ namespace ITI_Project
 
             builder.Services.AddScoped<IAppointmentService , AppointmentService>();
             builder.Services.AddScoped<IDonationService , DonationService>();
+            builder.Services.AddScoped<IBloodInventoryRepo, BloodInventoryRepo>();
 
             var app = builder.Build();
 
@@ -65,7 +66,11 @@ namespace ITI_Project
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
-           
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbcontext>(); 
+            //    dbContext.Database.EnsureCreated();
+            //}
             app.Run();
         }
     }

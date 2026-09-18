@@ -1,34 +1,42 @@
-﻿@model ITI.BLL.ViewModel.CreateDonationVM
+﻿@model ITI.BLL.ViewModel.CreateAppointmentVM
 
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Record Donation";
+    ViewData["Title"] = "Create Appointment";
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
 <style>
-    .bg-admin-dark { background-color: #0A1628; }
-    .text-rose-brand { color: #C41230; }
-    .bg-rose-brand { background-color: #C41230; }
+    .bg-admin-dark {
+        background-color: #0A1628;
+    }
+
+    .text-rose-brand {
+        color: #C41230;
+    }
+
+    .bg-rose-brand {
+        background-color: #C41230;
+    }
 </style>
 
-<!-- Header -->
+<!-- Header Section -->
 <div class="bg-admin-dark text-white -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 px-6 sm:px-8 pt-8 pb-8 mb-8 rounded-b-2xl">
     <div class="max-w-7xl mx-auto flex items-center gap-4">
         <div class="w-12 h-12 bg-rose-brand rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-900/40">
-            <i class="fa-solid fa-hand-holding-medical text-xl"></i>
+            <i class="fa-solid fa-calendar-plus text-xl"></i>
         </div>
         <div>
-            <p class="text-xs text-slate-400 font-medium">Donations Management</p>
-            <h1 class="text-2xl font-bold tracking-tight font-serif">Record New <span class="text-rose-brand">Donation</span></h1>
+            <p class="text-xs text-slate-400 font-medium">Appointments Management</p>
+            <h1 class="text-2xl font-bold tracking-tight font-serif">Schedule New <span class="text-rose-brand">Appointment</span></h1>
         </div>
     </div>
 </div>
 
 <div class="max-w-3xl mx-auto">
     <div class="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-sm">
-        <form asp-action="Record" method="post" class="space-y-6">
+        <form asp-action="Create" method="post" class="space-y-6">
             <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm font-medium"></div>
 
             <!-- Donor ID -->
@@ -45,17 +53,17 @@
                 <span asp-validation-for="BloodBankId" class="text-red-500 text-xs mt-1 block"></span>
             </div>
 
-            <!-- Units -->
+            <!-- Appointment Date -->
             <div>
-                <label asp-for="Units" class="block text-xs uppercase font-bold text-slate-500 mb-2">Units (Bags)</label>
-                <input asp-for="Units" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-brand transition text-slate-800" placeholder="e.g. 1" />
-                <span asp-validation-for="Units" class="text-red-500 text-xs mt-1 block"></span>
+                <label asp-for="AppointmentDate" class="block text-xs uppercase font-bold text-slate-500 mb-2">Appointment Date & Time</label>
+                <input asp-for="AppointmentDate" type="datetime-local" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-brand transition text-slate-800" />
+                <span asp-validation-for="AppointmentDate" class="text-red-500 text-xs mt-1 block"></span>
             </div>
 
             <!-- Actions -->
             <div class="flex items-center gap-4 pt-4">
                 <button type="submit" class="px-6 py-3 bg-rose-brand text-white font-semibold rounded-xl shadow-lg shadow-rose-900/20 hover:opacity-90 transition">
-                    Save Donation
+                    Save Appointment
                 </button>
                 <a asp-action="Index" class="px-6 py-3 bg-slate-100 text-slate-600 font-semibold rounded-xl hover:bg-slate-200 transition">
                     Cancel
@@ -64,7 +72,3 @@
         </form>
     </div>
 </div>
-
-
-
-

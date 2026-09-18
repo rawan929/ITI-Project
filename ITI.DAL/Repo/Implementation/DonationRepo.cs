@@ -10,8 +10,7 @@ namespace ITI.DAL.Repo.Implementation
 {
     public class DonationRepo : IDonationRepo
     {
-        private readonly AppDbcontext _context; // تأكدي من اسم الـ DbContext عندك
-
+        private readonly AppDbcontext _context; 
         public DonationRepo(AppDbcontext context)
         {
             _context = context;

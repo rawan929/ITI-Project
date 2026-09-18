@@ -1,8 +1,8 @@
-﻿@model IEnumerable<ITI.BLL.ViewModel.DonationVM>
+﻿@model IEnumerable<ITI.BLL.ViewModel.AppointmentVM>
 
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Donations";
+    ViewData["Title"] = "Appointments";
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -26,15 +26,15 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between">
         <div class="flex items-center gap-4">
             <div class="w-12 h-12 bg-rose-brand rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-900/40">
-                <i class="fa-solid fa-droplet text-xl"></i>
+                <i class="fa-solid fa-calendar-check text-xl"></i>
             </div>
             <div>
-                <p class="text-xs text-slate-400 font-medium">Donations Management</p>
-                <h1 class="text-2xl font-bold tracking-tight font-serif">Donation <span class="text-rose-brand">Records</span></h1>
+                <p class="text-xs text-slate-400 font-medium">Appointments Management</p>
+                <h1 class="text-2xl font-bold tracking-tight font-serif">Scheduled <span class="text-rose-brand">Appointments</span></h1>
             </div>
         </div>
-        <a asp-action="Record" class="px-5 py-2.5 bg-rose-brand text-white font-semibold text-sm rounded-xl shadow-lg shadow-rose-900/20 hover:opacity-90 transition flex items-center gap-2">
-            <i class="fa-solid fa-plus"></i> Record New Donation
+        <a asp-action="Create" class="px-5 py-2.5 bg-rose-brand text-white font-semibold text-sm rounded-xl shadow-lg shadow-rose-900/20 hover:opacity-90 transition flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> New Appointment
         </a>
     </div>
 </div>
@@ -46,8 +46,7 @@
                 <thead class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase text-slate-400">
                     <tr>
                         <th class="px-6 py-4">Donor Name</th>
-                        <th class="px-6 py-4">Units</th>
-                        <th class="px-6 py-4">Donation Date</th>
+                        <th class="px-6 py-4">Appointment Date</th>
                         <th class="px-6 py-4">Status</th>
                     </tr>
                 </thead>
@@ -58,8 +57,7 @@
                         {
                             <tr class="hover:bg-slate-50/50 transition">
                                 <td class="px-6 py-4 font-semibold text-slate-900">@(string.IsNullOrEmpty(item.DonorName) ? "N/A" : item.DonorName)</td>
-                                <td class="px-6 py-4">@item.Units</td>
-                                <td class="px-6 py-4">@item.DonationDate.ToString("yyyy-MM-dd hh:mm tt")</td>
+                                <td class="px-6 py-4">@item.AppointmentDate.ToString("yyyy-MM-dd hh:mm tt")</td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
                                         @item.Status
@@ -71,7 +69,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-slate-400 font-medium">No donations recorded yet.</td>
+                            <td colspan="3" class="px-6 py-8 text-center text-slate-400 font-medium">No appointments scheduled yet.</td>
                         </tr>
                     }
                 </tbody>
