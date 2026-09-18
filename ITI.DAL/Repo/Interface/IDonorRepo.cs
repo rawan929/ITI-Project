@@ -10,5 +10,7 @@ namespace ITI.DAL.Repo.Interface
         Task<IEnumerable<Donor>> GetAllDonorsWithDetailsAsync();
         Task AddDonorAsync(Donor donor);
         Task<Donor?> GetByUserIdWithDetailsAsync(Guid userId);
+        Task UpdateDonorAsync(Donor donor);                      
+        Task<List<BloodType>> GetAllBloodTypesAsync();         
     }
 }

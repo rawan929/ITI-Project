@@ -42,5 +42,16 @@ namespace ITI.DAL.Repo.Implementation
                 .Include(d => d.Donations)
                 .FirstOrDefaultAsync(d => d.UserId == userId);
         }
+
+        public async Task UpdateDonorAsync(Donor donor)
+        {
+            _context.Donors.Update(donor);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<BloodType>> GetAllBloodTypesAsync()
+        {
+            return await _context.BloodTypes.ToListAsync();
+        }
     }
 }

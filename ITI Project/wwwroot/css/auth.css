@@ -15,7 +15,6 @@ body.auth-body {
     width: 100%;
 }
 
-/* ===== العمود الشمال )الصورة + الإحصائيات) ===== */
 .auth-hero {
     flex: 1;
     position: relative;
@@ -88,7 +87,6 @@ body.auth-body {
     font-size: 0.85rem;
 }
 
-/* ===== العمود اليمين )الفورم) ===== */
 .auth-form-side {
     flex: 1;
     display: flex;
@@ -151,7 +149,6 @@ body.auth-body {
     float: right;
 }
 
-/* ===== كروت اختيار نوع الحساب (Register) ===== */
 .role-options {
     display: flex;
     gap: 10px;
@@ -175,6 +172,7 @@ body.auth-body {
 
     .role-card.active {
         border-color: var(--brand-red);
+        background: rgba(179, 18, 43, 0.06);
         box-shadow: 0 0 0 2px rgba(179,18,43,0.15);
     }
 
@@ -208,4 +206,25 @@ body.auth-body {
 
     .social-role-options .role-card {
         padding: 12px 8px;
+    }
+
+
+.strength-segment {
+    height: 4px;
+    flex: 1;
+    background: #e0e0e0;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+
+    .strength-segment.weak {
+        background: #ef4444;
+    }
+
+    .strength-segment.medium {
+        background: #f59e0b;
+    }
+
+    .strength-segment.strong {
+        background: #22c55e;
     }

@@ -137,7 +137,7 @@
             <div class="since-text">Registered donor since @Model.MemberSince</div>
         </div>
     </div>
-    <div class="mt-2">
+    <div class="mt-2 d-flex align-items-center gap-2">
         @if (Model.IsEligible)
         {
             <span class="badge-eligible">● Eligible to Donate</span>
@@ -146,6 +146,11 @@
         {
             <span class="badge-not-eligible">● Not Eligible Yet</span>
         }
+        <a asp-action="Profile" asp-controller="Donor"
+           class="btn btn-sm"
+           style="background:#fff;color:#0f1420;font-weight:600;border-radius:6px;padding:6px 14px;">
+             Edit Profile
+        </a>
     </div>
 </div>
 
