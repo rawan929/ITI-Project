@@ -27,5 +27,11 @@ namespace ITI.DAL.Repo.Implementation
                 .Include(d => d.Donations)
                 .ToListAsync();
         }
+
+        public async Task AddDonorAsync(Donor donor)
+        {
+            await _context.Donors.AddAsync(donor);
+            await _context.SaveChangesAsync();
+        }
     }
 }

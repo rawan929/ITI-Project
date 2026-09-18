@@ -43,5 +43,11 @@ namespace ITI.DAL.Repo.Implementation
         public async Task<int> GetApprovedCountAsync() => await _context.Hospitals.CountAsync(h => h.IsApproved);
 
         public async Task<int> GetPendingCountAsync() => await _context.Hospitals.CountAsync(h => !h.IsApproved);
+
+        public async Task AddHospitalAsync(Hospital hospital)
+        {
+            await _context.Hospitals.AddAsync(hospital);
+            await _context.SaveChangesAsync();
+        }
     }
 }
