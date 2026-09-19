@@ -16,7 +16,7 @@ body.auth-body {
 }
 
 .auth-hero {
-    flex: 1;
+    flex: 0 0 40%;
     position: relative;
     background-image: linear-gradient(rgba(15,20,32,0.82), rgba(15,20,32,0.82)), url('/images/blood-donation-hero.jpg');
     background-size: cover;
