@@ -47,6 +47,8 @@ namespace ITI.BLL.Services.Implementation
                 return new AuthResult { Succeeded = false, Errors = ConvertErrors(result) };
             }
 
+            await _userManager.AddToRoleAsync(user, "Donor");
+
             var donor = new Donor
             {
                 Id = Guid.NewGuid(),
@@ -58,7 +60,7 @@ namespace ITI.BLL.Services.Implementation
 
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            return new AuthResult { Succeeded = true };
+            return new AuthResult { Succeeded = true, UserType = "Donor" };
         }
 
         public async Task<AuthResult> RegisterHospital(RegisterViewModel model)
@@ -81,6 +83,8 @@ namespace ITI.BLL.Services.Implementation
                 return new AuthResult { Succeeded = false, Errors = ConvertErrors(result) };
             }
 
+            await _userManager.AddToRoleAsync(user, "Hospital");
+
             var hospital = new Hospital
             {
                 Id = Guid.NewGuid(),
@@ -96,7 +100,7 @@ namespace ITI.BLL.Services.Implementation
 
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            return new AuthResult { Succeeded = true };
+            return new AuthResult { Succeeded = true, UserType = "Hospital" };
         }
 
         public async Task<AuthResult> Login(LoginViewModel model)
@@ -104,10 +108,21 @@ namespace ITI.BLL.Services.Implementation
             var result = await _signInManager.PasswordSignInAsync(
                 model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
 
+            if (!result.Succeeded)
+            {
+                return new AuthResult
+                {
+                    Succeeded = false,
+                    Errors = new[] { "Invalid email or password" }
+                };
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
             return new AuthResult
             {
-                Succeeded = result.Succeeded,
-                Errors = result.Succeeded ? Array.Empty<string>() : new[] { "Invalid email or password" }
+                Succeeded = true,
+                UserType = user?.UserType
             };
         }
 

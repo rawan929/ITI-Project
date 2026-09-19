@@ -10,6 +10,7 @@ namespace ITI.BLL.Services.Interface
     {
         public bool Succeeded { get; set; }
         public string[] Errors { get; set; } = Array.Empty<string>();
+        public string? UserType { get; set; }
     }
 
     public interface IAuthService

@@ -26,7 +26,7 @@ namespace ITI.PL.Controllers
             var result = await _authService.Login(model);
 
             if (result.Succeeded)
-                return RedirectToAction("Index", "Home");
+                return RedirectByUserType(result.UserType);
 
             ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault() ?? "Login failed");
             return View(model);
@@ -49,7 +49,7 @@ namespace ITI.PL.Controllers
             };
 
             if (result.Succeeded)
-                return RedirectToAction("Index", "Home");
+                return RedirectByUserType(result.UserType);
 
             foreach (var error in result.Errors)
                 ModelState.AddModelError(string.Empty, error);
@@ -64,5 +64,15 @@ namespace ITI.PL.Controllers
         }
 
         public IActionResult AccessDenied() => View();
+
+        private IActionResult RedirectByUserType(string? userType)
+        {
+            return userType switch
+            {
+                "Admin" => RedirectToAction("Index", "Admin"),
+                "Donor" => RedirectToAction("Dashboard", "Donor"),
+                _ => RedirectToAction("Index", "Home")
+            };
+        }
     }
 }
