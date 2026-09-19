@@ -17,8 +17,8 @@ namespace ITI.BLL.ViewModel
 
     public class CreateDonationVM
     {
-        public Guid DonorId { get; set; }
-        public Guid BloodBankId { get; set; }
+        public string? DonorId { get; set; }
+        public string? BloodBankId { get; set; }
         public int Units { get; set; } = 1;
     }
 }

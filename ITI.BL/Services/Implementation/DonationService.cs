@@ -22,11 +22,13 @@ namespace ITI.BLL.Services.Implementation
 
         public async Task<bool> RecordDonationAsync(CreateDonationVM model)
         {
+            Guid.TryParse(model.DonorId, out Guid DonorGuid);
+            Guid.TryParse(model.BloodBankId, out Guid BankGuid);
             var donation = new Donation
             {
                 Id = Guid.NewGuid(),
-                DonorId = model.DonorId,
-                BloodBankId = model.BloodBankId,
+                DonorId = DonorGuid != Guid.Empty ? DonorGuid : Guid.NewGuid(),
+                BloodBankId = BankGuid != Guid.Empty ? BankGuid: Guid.NewGuid(),
                 Units = model.Units,
                 DonationDate = DateTime.UtcNow,
                 Status = "Completed"

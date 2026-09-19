@@ -16,8 +16,8 @@ namespace ITI.BLL.ViewModel
     }
     public class CreateAppointmentVM
     {
-        public Guid DonorId { get; set; }
-        public Guid BloodBankId { get; set; }
+        public string? DonorId { get; set; }
+        public string? BloodBankId { get; set; }
         public DateTime AppointmentDate { get; set; }
     }
 }

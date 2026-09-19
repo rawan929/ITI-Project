@@ -18,7 +18,7 @@ namespace ITI.Web.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            return View(new CreateAppointmentVM());
         }
 
         [HttpPost]
@@ -37,7 +37,7 @@ namespace ITI.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(Guid bloodBankId)
+        public async Task<IActionResult> Index(Guid bloodBankId = default)
         {
             var appointments = await _appointmentService.GetAppointmentsByBankAsync(bloodBankId);
             return View(appointments);

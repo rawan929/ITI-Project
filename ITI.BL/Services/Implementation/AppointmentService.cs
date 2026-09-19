@@ -48,11 +48,13 @@ namespace ITI.BLL.Services.Implementation
 
         public async Task<bool> CreateAppointmentAsync(CreateAppointmentVM model)
         {
+            Guid.TryParse(model.DonorId, out Guid DonorGuid);
+            Guid.TryParse(model.BloodBankId, out Guid BankGuid);
             var appointment = new Appointment
             {
                 Id = Guid.NewGuid(),
-                DonorId = model.DonorId,
-                BloodBankId = model.BloodBankId,
+                DonorId = DonorGuid != Guid.Empty ? DonorGuid: Guid.NewGuid(),
+                BloodBankId = BankGuid != Guid.Empty ? BankGuid: Guid.NewGuid(),
                 AppointmentDate = model.AppointmentDate,
                 Status = "Pending"
             };

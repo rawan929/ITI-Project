@@ -19,7 +19,7 @@ namespace ITI.Web.Controllers
         [HttpGet]
         public IActionResult Record()
         {
-            return View();
+            return View(new CreateDonationVM());
         }
 
         [HttpPost]
@@ -38,7 +38,7 @@ namespace ITI.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(Guid bloodBankId)
+        public async Task<IActionResult> Index(Guid bloodBankId = default)
         {
             var donations = await _donationService.GetDonationsByBankAsync(bloodBankId);
             return View(donations);
