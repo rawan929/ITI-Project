@@ -1,0 +1,381 @@
+﻿@model List<ITI.BLL.ViewModel.DonorResponseViewModel>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Donor Responses";
+}
+
+<!-- Header -->
+<div class="bg-[#0A1628] text-white -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 px-6 sm:px-8 pt-8 pb-0 mb-8">
+
+    <div class="max-w-7xl mx-auto">
+
+        <div class="flex items-center gap-4 mb-10">
+
+            <!-- Icon -->
+            <div class="w-14 h-14 bg-[#C41230] rounded-2xl flex items-center justify-center shadow-lg">
+
+                <i class="fa-solid fa-users text-xl"></i>
+
+            </div>
+
+            <!-- Title -->
+            <div>
+
+                <p class="text-xs text-slate-400 font-medium">
+                    Hospital Services
+                </p>
+
+                <h1 class="text-2xl font-bold tracking-tight font-serif">
+                    BloodLink+ Hospital
+                </h1>
+
+                <p class="text-sm text-slate-400 mt-1">
+                    Donor Responses
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Navigation -->
+        <div class="flex items-center gap-8">
+
+            <a asp-action="Dashboard"
+               class="text-slate-400 hover:text-white
+                text-sm pb-4 transition">
+                Overview
+            </a>
+
+            <a asp-action="CreateRequest"
+               class="text-slate-400 hover:text-white
+                text-sm pb-4 transition">
+                Create Request
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto">
+
+    <div class="bg-white rounded-2xl
+        border border-slate-200/80
+        shadow-sm">
+
+        <!-- Card Header -->
+        <div class="p-6 md:p-7
+            border-b border-slate-100">
+
+            <p class="text-xs font-bold text-slate-400
+                uppercase tracking-wider">
+                Blood Request
+            </p>
+
+            <h2 class="text-xl font-bold text-slate-900 mt-1">
+                Donor Responses
+            </h2>
+
+            <p class="text-sm text-slate-400 mt-1">
+                Donors who responded to this blood request.
+            </p>
+
+        </div>
+
+
+        <!-- Responses -->
+        <div class="p-6 md:p-7">
+
+            @if (Model == null || Model.Count == 0)
+            {
+                <!-- Empty State -->
+
+                <div class="text-center py-14">
+
+                    <div class="w-16 h-16
+                        bg-slate-100
+                        rounded-2xl
+                        flex items-center justify-center
+                        mx-auto mb-4">
+
+                        <i class="fa-solid fa-users
+                        text-slate-400 text-xl"></i>
+
+                    </div>
+
+                    <h3 class="text-lg font-bold text-slate-800">
+                        No Donor Responses
+                    </h3>
+
+                    <p class="text-sm text-slate-400 mt-2">
+                        No donors have responded to this request yet.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <!-- Donors Table -->
+
+                <div class="overflow-x-auto">
+
+                    <table class="w-full">
+
+                        <thead>
+
+                            <tr class="border-b border-slate-100">
+
+                                <th class="text-left
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    Donor
+                                </th>
+
+                                <th class="text-left
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    Blood Type
+                                </th>
+
+                                <th class="text-left
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    City
+                                </th>
+
+                                <th class="text-left
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    Phone
+                                </th>
+
+                                <th class="text-left
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    Donations
+                                </th>
+
+                                <th class="text-left
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var donor in Model)
+                            {
+                                <tr class="border-b border-slate-100 last:border-0">
+
+                                    <!-- Donor -->
+                                    <td class="py-5">
+
+                                        <div class="flex items-center gap-3">
+
+                                            <div class="w-10 h-10
+                                                rounded-xl
+                                                bg-rose-50
+                                                flex items-center
+                                                justify-center
+                                                text-[#C41230]
+                                                font-bold text-sm">
+
+                                                @donor.Initials
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <p class="text-sm
+                                                    font-bold
+                                                    text-slate-800">
+
+                                                    @donor.FullName
+
+                                                </p>
+
+                                                <p class="text-xs
+                                                    text-slate-400">
+
+                                                    Donor
+
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- Blood Type -->
+                                    <td class="py-5">
+
+                                        <span class="inline-flex
+                                            items-center
+                                            px-3 py-1.5
+                                            rounded-full
+                                            bg-rose-50
+                                            text-[#C41230]
+                                            text-xs
+                                            font-bold">
+
+                                            @donor.BloodType
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- City -->
+                                    <td class="py-5">
+
+                                        <div class="flex items-center gap-2">
+
+                                            <i class="fa-solid fa-location-dot
+                                            text-slate-400 text-xs"></i>
+
+                                            <span class="text-sm
+                                                text-slate-600">
+
+                                                @donor.City
+
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- Phone -->
+                                    <td class="py-5">
+
+                                        <div class="flex items-center gap-2">
+
+                                            <i class="fa-solid fa-phone
+                                            text-slate-400 text-xs"></i>
+
+                                            <span class="text-sm
+                                                text-slate-600">
+
+                                                @(string.IsNullOrWhiteSpace(donor.PhoneNumber) ? "—" : donor.PhoneNumber)
+
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- Donations -->
+                                    <td class="py-5">
+
+                                        <span class="text-sm
+                                            font-semibold
+                                            text-slate-700">
+
+                                            @donor.TotalDonations
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Status -->
+                                    <td class="py-5">
+
+                                        @if (donor.IsActive)
+                                        {
+                                            <span class="inline-flex
+                                                items-center gap-1.5
+                                                px-3 py-1.5
+                                                rounded-full
+                                                bg-emerald-50
+                                                text-emerald-700
+                                                text-xs
+                                                font-bold">
+
+                                                <span class="w-1.5 h-1.5
+                                                    bg-emerald-600
+                                                    rounded-full">
+                                                </span>
+
+                                                Active
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex
+                                                items-center gap-1.5
+                                                px-3 py-1.5
+                                                rounded-full
+                                                bg-slate-100
+                                                text-slate-500
+                                                text-xs
+                                                font-bold">
+
+                                                Inactive
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- Back Button -->
+    <div class="mt-6">
+
+        <a asp-action="Dashboard"
+           class="inline-flex items-center gap-2
+            text-sm font-semibold
+            text-slate-600
+            hover:text-[#C41230]
+            transition">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Back to Dashboard
+
+        </a>
+
+    </div>
+
+</div>

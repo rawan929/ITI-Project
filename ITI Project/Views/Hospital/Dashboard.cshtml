@@ -1,0 +1,542 @@
+﻿@model List<ITI.DAL.Models.BloodRequest>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Hospital Dashboard";
+
+    var totalRequests = Model?.Count ?? 0;
+    var activeRequests = Model?.Count(x => x.Status != "Fulfilled") ?? 0;
+    var fulfilledRequests = Model?.Count(x => x.Status == "Fulfilled") ?? 0;
+    var emergencyRequests = Model?.Count(x => x.Urgency == "Emergency") ?? 0;
+}
+
+<!-- Header -->
+<div class="bg-[#0A1628] text-white -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 px-6 sm:px-8 pt-8 pb-0 mb-8">
+
+    <div class="max-w-7xl mx-auto">
+
+        <!-- Hospital Title -->
+        <div class="flex items-center justify-between mb-10">
+
+            <div class="flex items-center gap-4">
+
+                <!-- Icon -->
+                <div class="w-14 h-14 bg-[#C41230] rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-hospital text-xl"></i>
+                </div>
+
+                <!-- Title -->
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">
+                        Hospital Services
+                    </p>
+
+                    <h1 class="text-2xl font-bold tracking-tight font-serif">
+                        BloodLink+ Hospital
+                    </h1>
+
+                    <p class="text-sm text-slate-400 mt-1">
+                        Hospital Dashboard
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Status -->
+            <div class="hidden sm:flex items-center gap-2
+                border border-slate-400/40
+                rounded-full px-5 py-2
+                text-sm">
+
+                <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full"></span>
+
+                <span class="text-emerald-300 font-medium">
+                    Hospital Online
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Navigation -->
+        <div class="flex items-center gap-8">
+
+            <a asp-action="Dashboard"
+               class="text-white font-semibold text-sm
+                border-b-2 border-white pb-4">
+                Overview
+            </a>
+
+            <a asp-action="CreateRequest"
+               class="text-slate-400 hover:text-white
+                text-sm pb-4 transition">
+                Create Request
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto">
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+
+        <!-- Total Requests -->
+        <div class="bg-white p-7 rounded-2xl
+            border border-slate-200/80
+            shadow-sm">
+
+            <div class="flex items-center justify-between mb-5">
+
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Total Requests
+                </p>
+
+                <div class="w-10 h-10 rounded-xl
+                    bg-slate-100
+                    flex items-center justify-center">
+
+                    <i class="fa-solid fa-file-medical text-slate-500"></i>
+
+                </div>
+
+            </div>
+
+            <h2 class="text-3xl font-bold text-slate-900">
+                @totalRequests
+            </h2>
+
+            <p class="text-sm text-slate-400 mt-2">
+                All blood requests
+            </p>
+
+        </div>
+
+
+        <!-- Active Requests -->
+        <div class="bg-white p-7 rounded-2xl
+            border border-slate-200/80
+            shadow-sm">
+
+            <div class="flex items-center justify-between mb-5">
+
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Active Requests
+                </p>
+
+                <div class="w-10 h-10 rounded-xl
+                    bg-rose-50
+                    flex items-center justify-center">
+
+                    <i class="fa-solid fa-droplet text-[#C41230]"></i>
+
+                </div>
+
+            </div>
+
+            <h2 class="text-3xl font-bold text-slate-900">
+                @activeRequests
+            </h2>
+
+            <p class="text-sm text-slate-400 mt-2">
+                Requests waiting to be fulfilled
+            </p>
+
+        </div>
+
+
+        <!-- Fulfilled Requests -->
+        <div class="bg-white p-7 rounded-2xl
+            border border-slate-200/80
+            shadow-sm">
+
+            <div class="flex items-center justify-between mb-5">
+
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Fulfilled
+                </p>
+
+                <div class="w-10 h-10 rounded-xl
+                    bg-emerald-50
+                    flex items-center justify-center">
+
+                    <i class="fa-solid fa-circle-check text-emerald-600"></i>
+
+                </div>
+
+            </div>
+
+            <h2 class="text-3xl font-bold text-slate-900">
+                @fulfilledRequests
+            </h2>
+
+            <p class="text-sm text-slate-400 mt-2">
+                Completed requests
+            </p>
+
+        </div>
+
+
+        <!-- Emergency -->
+        <div class="bg-white p-7 rounded-2xl
+            border border-slate-200/80
+            shadow-sm">
+
+            <div class="flex items-center justify-between mb-5">
+
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Emergency
+                </p>
+
+                <div class="w-10 h-10 rounded-xl
+                    bg-amber-50
+                    flex items-center justify-center">
+
+                    <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+
+                </div>
+
+            </div>
+
+            <h2 class="text-3xl font-bold text-slate-900">
+                @emergencyRequests
+            </h2>
+
+            <p class="text-sm text-slate-400 mt-2">
+                Emergency requests
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Blood Requests Section -->
+    <div class="bg-white rounded-2xl
+        border border-slate-200/80
+        shadow-sm">
+
+        <!-- Section Header -->
+        <div class="p-6 md:p-7
+            border-b border-slate-100
+            flex flex-col sm:flex-row
+            sm:items-center
+            sm:justify-between
+            gap-4">
+
+            <div>
+
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Hospital Requests
+                </p>
+
+                <h2 class="text-xl font-bold text-slate-900 mt-1">
+                    My Blood Requests
+                </h2>
+
+                <p class="text-sm text-slate-400 mt-1">
+                    View and manage the blood requests created by your hospital.
+                </p>
+
+            </div>
+
+
+            <!-- Create Button -->
+            <a asp-action="CreateRequest"
+               class="inline-flex items-center justify-center
+                gap-2
+                bg-[#C41230]
+                hover:opacity-90
+                text-white
+                text-sm font-semibold
+                px-5 py-3
+                rounded-xl
+                transition">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Create Request
+
+            </a>
+
+        </div>
+
+
+        <!-- Requests -->
+        <div class="p-6 md:p-7">
+
+            @if (Model == null || Model.Count == 0)
+            {
+                <!-- Empty State -->
+
+                <div class="text-center py-14">
+
+                    <div class="w-16 h-16
+                        bg-slate-100
+                        rounded-2xl
+                        flex items-center justify-center
+                        mx-auto mb-4">
+
+                        <i class="fa-solid fa-droplet
+                        text-slate-400 text-xl"></i>
+
+                    </div>
+
+                    <h3 class="text-lg font-bold text-slate-800">
+                        No Blood Requests
+                    </h3>
+
+                    <p class="text-sm text-slate-400 mt-2">
+                        Your hospital has not created any blood requests yet.
+                    </p>
+
+                    <a asp-action="CreateRequest"
+                       class="inline-flex items-center gap-2
+                        mt-5
+                        bg-[#C41230]
+                        text-white
+                        text-sm font-semibold
+                        px-5 py-2.5
+                        rounded-xl">
+
+                        <i class="fa-solid fa-plus"></i>
+                        Create Your First Request
+
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <!-- Requests Table -->
+
+                <div class="overflow-x-auto">
+
+                    <table class="w-full">
+
+                        <thead>
+
+                            <tr class="border-b border-slate-100">
+
+                                <th class="text-left
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    Blood Type
+                                </th>
+
+                                <th class="text-left
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    Units
+                                </th>
+
+                                <th class="text-left
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    Urgency
+                                </th>
+
+                                <th class="text-left
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    Status
+                                </th>
+
+                                <th class="text-right
+                                    text-xs font-bold
+                                    text-slate-400
+                                    uppercase tracking-wider
+                                    pb-4">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var request in Model)
+                            {
+                                <tr class="border-b border-slate-100 last:border-0">
+
+                                    <!-- Blood Type -->
+                                    <td class="py-5">
+
+                                        <div class="flex items-center gap-3">
+
+                                            <div class="w-9 h-9
+                                                bg-rose-50
+                                                rounded-lg
+                                                flex items-center justify-center">
+
+                                                <i class="fa-solid fa-droplet
+                                                text-[#C41230]"></i>
+
+                                            </div>
+
+                                            <span class="font-bold text-slate-800">
+                                                @request.BloodType.Name
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- Units -->
+                                    <td class="py-5">
+
+                                        <span class="text-sm font-semibold text-slate-700">
+                                            @request.UnitsRequired
+                                        </span>
+
+                                        <span class="text-xs text-slate-400">
+                                            units
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Urgency -->
+                                    <td class="py-5">
+
+                                        @if (request.Urgency == "Emergency")
+                                        {
+                                            <span class="inline-flex items-center gap-1.5
+                                                px-3 py-1.5
+                                                rounded-full
+                                                bg-rose-50
+                                                text-[#C41230]
+                                                text-xs font-bold">
+
+                                                <span class="w-1.5 h-1.5
+                                                    bg-[#C41230]
+                                                    rounded-full">
+                                                </span>
+
+                                                Emergency
+
+                                            </span>
+                                        }
+                                        else if (request.Urgency == "Urgent")
+                                        {
+                                            <span class="inline-flex items-center gap-1.5
+                                                px-3 py-1.5
+                                                rounded-full
+                                                bg-amber-50
+                                                text-amber-700
+                                                text-xs font-bold">
+
+                                                Urgent
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex items-center
+                                                px-3 py-1.5
+                                                rounded-full
+                                                bg-slate-100
+                                                text-slate-600
+                                                text-xs font-bold">
+
+                                                @request.Urgency
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Status -->
+                                    <td class="py-5">
+
+                                        @if (request.Status == "Fulfilled")
+                                        {
+                                            <span class="inline-flex items-center gap-1.5
+                                                px-3 py-1.5
+                                                rounded-full
+                                                bg-emerald-50
+                                                text-emerald-700
+                                                text-xs font-bold">
+
+                                                <i class="fa-solid fa-circle-check"></i>
+
+                                                Fulfilled
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex items-center gap-1.5
+                                                px-3 py-1.5
+                                                rounded-full
+                                                bg-blue-50
+                                                text-blue-700
+                                                text-xs font-bold">
+
+                                                <span class="w-1.5 h-1.5
+                                                    bg-blue-600
+                                                    rounded-full">
+                                                </span>
+
+                                                @request.Status
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Action -->
+                                    <td class="py-5 text-right">
+
+                                        <a asp-action="ViewResponses"
+                                           asp-route-id="@request.Id"
+                                           class="inline-flex items-center gap-2
+                                            text-sm font-semibold
+                                            text-slate-600
+                                            hover:text-[#C41230]
+                                            transition">
+
+                                            View Responses
+
+                                            <i class="fa-solid fa-arrow-right text-xs"></i>
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
