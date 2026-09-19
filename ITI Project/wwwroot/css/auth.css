@@ -1,0 +1,230 @@
+﻿:root {
+    --brand-red: #b3122b;
+    --brand-red-dark: #8f0e22;
+    --dark-navy: #0f1420;
+}
+
+body.auth-body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+.auth-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.auth-hero {
+    flex: 1;
+    position: relative;
+    background-image: linear-gradient(rgba(15,20,32,0.82), rgba(15,20,32,0.82)), url('https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=1200&h=1600&fit=crop&auto=format');
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.auth-logo-icon {
+    background: var(--brand-red);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-hero h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    font-size: 2.6rem;
+    margin-top: 30px;
+}
+
+.auth-hero p.subtitle {
+    color: #c9ccd3;
+    max-width: 380px;
+}
+
+.auth-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 30px;
+}
+
+.auth-stat {
+    border-left: 3px solid var(--brand-red);
+    padding-left: 14px;
+}
+
+    .auth-stat .number {
+        font-size: 1.6rem;
+        font-weight: 700;
+    }
+
+    .auth-stat .label {
+        color: #b7bac2;
+        font-size: 0.85rem;
+    }
+
+.auth-emergency {
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+}
+
+.auth-form-side {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f6f8;
+    padding: 40px;
+}
+
+.auth-form-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+    .auth-form-container h2 {
+        font-family: Georgia, serif;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .auth-form-container .switch-link a {
+        color: var(--brand-red);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+.form-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #444;
+    text-transform: uppercase;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 10px 14px;
+    border: 1px solid #dcdde1;
+}
+
+.btn-brand {
+    background: var(--brand-red);
+    border-color: var(--brand-red);
+    color: #fff;
+    font-weight: 700;
+    padding: 12px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+    .btn-brand:hover {
+        background: var(--brand-red-dark);
+        color: #fff;
+    }
+
+.forgot-link {
+    color: var(--brand-red);
+    font-size: 0.85rem;
+    text-decoration: none;
+    float: right;
+}
+
+.role-options {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.role-card {
+    flex: 1;
+    border: 1.5px solid #dcdde1;
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.15s;
+    background: #fff;
+}
+
+    .role-card:hover {
+        border-color: var(--brand-red);
+    }
+
+    .role-card.active {
+        border-color: var(--brand-red);
+        background: rgba(179, 18, 43, 0.06);
+        box-shadow: 0 0 0 2px rgba(179,18,43,0.15);
+    }
+
+    .role-card .icon {
+        font-size: 1.4rem;
+        margin-bottom: 6px;
+    }
+
+    .role-card .title {
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .role-card .desc {
+        font-size: 0.72rem;
+        color: #888;
+    }
+
+.divider-text {
+    text-align: center;
+    color: #999;
+    font-size: 0.8rem;
+    margin: 18px 0;
+    position: relative;
+}
+
+.social-role-options {
+    display: flex;
+    gap: 10px;
+}
+
+    .social-role-options .role-card {
+        padding: 12px 8px;
+    }
+
+
+.strength-segment {
+    height: 4px;
+    flex: 1;
+    background: #e0e0e0;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+
+    .strength-segment.weak {
+        background: #ef4444;
+    }
+
+    .strength-segment.medium {
+        background: #f59e0b;
+    }
+
+    .strength-segment.strong {
+        background: #22c55e;
+    }

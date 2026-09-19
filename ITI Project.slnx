@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ITI Project/ITI.PL.csproj" />
+  <Project Path="ITI.BL/ITI.BLL.csproj" />
+  <Project Path="ITI.DAL/ITI.DAL.csproj" />
+</Solution>
