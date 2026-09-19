@@ -8,35 +8,142 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ITI_Project.styles.css" asp-append-version="true" />
-<script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --brand-red: #b3122b;
+        }
+
+        .site-navbar {
+            padding: 12px 40px;
+            background: #fff;
+        }
+
+        .site-navbar .navbar-brand {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #1a1a1a;
+        }
+
+        .site-navbar .nav-link {
+            color: #333 !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 8px 4px !important;
+            margin: 0 12px;
+            transition: color 0.15s;
+        }
+
+        .site-navbar .nav-link:hover,
+        .site-navbar .nav-link:focus {
+            color: var(--brand-red) !important;
+        }
+
+        .site-navbar .nav-link.active-pill {
+            color: var(--brand-red) !important;
+            background: rgba(179, 18, 43, 0.08);
+            border: 1px solid rgba(179, 18, 43, 0.25);
+            border-radius: 20px;
+            padding: 6px 16px !important;
+        }
+
+        .site-navbar .dropdown-menu {
+            border-radius: 8px;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .site-navbar .dropdown-item:hover {
+            color: var(--brand-red);
+            background: rgba(179, 18, 43, 0.06);
+        }
+
+        .site-navbar .btn-brand {
+            background: var(--brand-red);
+            color: #fff;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 6px;
+            border: none;
+        }
+
+        .site-navbar .btn-brand:hover {
+            background: #8f0e22;
+            color: #fff;
+        }
+
+        .site-navbar .nav-user-greeting {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .site-navbar .dropdown-item.active-dropdown-item {
+            color: var(--brand-red);
+            font-weight: 600;
+            background: rgba(179, 18, 43, 0.06);
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ITI_Project</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+        <nav class="navbar navbar-expand-lg navbar-light site-navbar border-bottom">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                <span style="background:var(--brand-red);color:#fff;padding:4px 8px;border-radius:6px;margin-right:6px;">🩸</span>
+                BloodLink<span style="color:var(--brand-red)">+</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Find Donors</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Request Blood</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active-pill" href="#" role="button" data-bs-toggle="dropdown">
+                            Dashboards
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Donor" ? "active-dropdown-item" : "")"
+                                   asp-controller="Donor" asp-action="Dashboard">
+                                    Donor Dashboard
+                                </a>
+                            </li>
+                            <li><a class="dropdown-item" href="#">Hospital Dashboard</a></li>
+                            <li><a class="dropdown-item" href="#">Blood Bank Dashboard</a></li>
+                            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Admin Dashboard</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav align-items-center gap-2">
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <span class="nav-link nav-user-greeting">Welcome</span>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-link nav-link p-0 border-0">Logout</button>
+                            </form>
                         </li>
-                    </ul>
-                </div>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Sign In</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Register</a></li>
+                    }
+                    <li class="nav-item">
+                        <a class="btn btn-brand" href="#">Request Blood</a>
+                    </li>
+                </ul>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <main role="main">
+    @RenderBody()
+    </main>
 
     <footer class="border-top footer text-muted">
         <div class="container">

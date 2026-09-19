@@ -21,4 +21,8 @@
     <ProjectReference Include="..\ITI.DAL\ITI.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
 </Project>

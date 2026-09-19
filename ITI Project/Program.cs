@@ -4,6 +4,7 @@ using ITI.DAL.Context;
 using ITI.DAL.Models;
 using ITI.DAL.Repo.Implementation;
 using ITI.DAL.Repo.Interface;
+using ITI_Project.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ namespace ITI_Project
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -26,9 +27,14 @@ namespace ITI_Project
 
             // Services
             builder.Services.AddScoped<IAdminService, AdminService>();
+<<<<<<< HEAD
             builder.Services.AddScoped<IHospitalService, HospitalService>();
             builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
             builder.Services.AddScoped<IDonationRequestService, DonationRequestService>();
+=======
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IDonorService, DonorService>();
+>>>>>>> origin/master
             //  Identity
             builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
             {
@@ -43,6 +49,12 @@ namespace ITI_Project
 
             var app = builder.Build();
 
+            // Seed roles + default Admin account so there's a way to log into the Admin dashboard
+            // (Admin cannot self-register through the Register page).
+            using (var scope = app.Services.CreateScope())
+            {
+                await DbSeeder.SeedAsync(scope.ServiceProvider);
+            }
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -64,7 +76,7 @@ namespace ITI_Project
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
            
-            app.Run();
+            await app.RunAsync();
         }
     }
 }
