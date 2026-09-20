@@ -12,7 +12,7 @@ namespace ITI.BLL.ViewModel.Donor
         public string FullName { get; set; } = string.Empty;
 
         [Display(Name = "Email Address")]
-        public string Email { get; set; } = string.Empty; // Read-only
+        public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Phone number is required")]
         [Phone]
@@ -33,6 +33,20 @@ namespace ITI.BLL.ViewModel.Donor
 
         [Required(ErrorMessage = "Please select your gender")]
         public string Gender { get; set; } = string.Empty;
+
+        [Range(1, 400, ErrorMessage = "Please enter a valid weight")]
+        [Display(Name = "Weight (kg)")]
+        public double? Weight { get; set; }
+
+        [Range(1, 300, ErrorMessage = "Please enter a valid height")]
+        [Display(Name = "Height (cm)")]
+        public double? Height { get; set; }
+
+        [Display(Name = "Known Allergies")]
+        public string? KnownAllergies { get; set; }
+
+        [Display(Name = "Chronic Conditions")]
+        public string? ChronicConditions { get; set; }
 
         public List<BloodTypeOption> AvailableBloodTypes { get; set; } = new();
     }

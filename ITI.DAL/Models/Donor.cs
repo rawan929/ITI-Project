@@ -14,6 +14,12 @@ namespace ITI.DAL.Models
         public DateTime? LastDonationDate { get; set; }
         public bool IsEligible { get; set; } = true;
 
+        // (Medical Information)
+        public double? Weight { get; set; }              // بالكيلوجرام
+        public double? Height { get; set; }               // بالسنتيمتر
+        public string? KnownAllergies { get; set; }
+        public string? ChronicConditions { get; set; }
+
         // Navigation Properties
         public ApplicationUser User { get; set; } = null!;
         public BloodType? BloodType { get; set; }

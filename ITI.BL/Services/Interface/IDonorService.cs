@@ -10,8 +10,10 @@ namespace ITI.BLL.Services.Interface
     public interface IDonorService
     {
         Task<DonorDashboardViewModel?> GetDashboardData(Guid userId);
-        Task<DonorProfileViewModel?> GetDonorProfile(Guid userId);        
-        Task<AuthResult> UpdateDonorProfile(Guid userId, DonorProfileViewModel model); 
-        Task<AuthResult> ChangePassword(Guid userId, ChangePasswordViewModel model);  
+        Task<DonorHeaderViewModel?> GetHeaderData(Guid userId, string activeTab);  // ⬅️ جديد
+        Task<DonorProfileViewModel?> GetDonorProfile(Guid userId);
+        Task<DonorProfileViewViewModel?> GetDonorProfileView(Guid userId);          // ⬅️ جديد
+        Task<AuthResult> UpdateDonorProfile(Guid userId, DonorProfileViewModel model);
+        Task<AuthResult> ChangePassword(Guid userId, ChangePasswordViewModel model);
     }
 }

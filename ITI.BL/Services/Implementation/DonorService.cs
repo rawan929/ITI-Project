@@ -20,29 +20,29 @@ namespace ITI.BLL.Services.Implementation
             _userManager = userManager;
         }
 
+        
+        private (bool isEligible, DateTime? nextEligible, int? daysLeft) CalculateEligibility(DateTime? lastDonationDate)
+        {
+            if (!lastDonationDate.HasValue)
+                return (true, null, null);
+
+            var nextEligible = lastDonationDate.Value.AddDays(90);
+            var remaining = (nextEligible - DateTime.UtcNow).Days;
+            var isEligible = remaining <= 0;
+            var daysLeft = remaining > 0 ? remaining : (int?)null;
+
+            return (isEligible, nextEligible, daysLeft);
+        }
+
         public async Task<DonorDashboardViewModel?> GetDashboardData(Guid userId)
         {
             var donor = await _donorRepo.GetByUserIdWithDetailsAsync(userId);
-
             if (donor == null) return null;
 
-            var lastDonation = donor.Donations
-                .OrderByDescending(d => d.DonationDate)
-                .FirstOrDefault();
-
+            var lastDonation = donor.Donations.OrderByDescending(d => d.DonationDate).FirstOrDefault();
             DateTime? lastDonationDate = lastDonation?.DonationDate ?? donor.LastDonationDate;
 
-            DateTime? nextEligible = null;
-            int? daysLeft = null;
-            bool isEligible = true;
-
-            if (lastDonationDate.HasValue)
-            {
-                nextEligible = lastDonationDate.Value.AddDays(90);
-                var remaining = (nextEligible.Value - DateTime.UtcNow).Days;
-                isEligible = remaining <= 0;
-                daysLeft = remaining > 0 ? remaining : null;
-            }
+            var (isEligible, nextEligible, daysLeft) = CalculateEligibility(lastDonationDate);
 
             return new DonorDashboardViewModel
             {
@@ -54,6 +54,25 @@ namespace ITI.BLL.Services.Implementation
                 LastDonationDate = lastDonationDate,
                 NextEligibleDate = nextEligible,
                 DaysUntilEligible = daysLeft
+            };
+        }
+
+        public async Task<DonorHeaderViewModel?> GetHeaderData(Guid userId, string activeTab)
+        {
+            var donor = await _donorRepo.GetByUserIdWithDetailsAsync(userId);
+            if (donor == null) return null;
+
+            var lastDonation = donor.Donations.OrderByDescending(d => d.DonationDate).FirstOrDefault();
+            DateTime? lastDonationDate = lastDonation?.DonationDate ?? donor.LastDonationDate;
+
+            var (isEligible, _, _) = CalculateEligibility(lastDonationDate);
+
+            return new DonorHeaderViewModel
+            {
+                FullName = donor.User.FullName,
+                MemberSince = donor.User.CreatedAt.ToString("MMMM yyyy"),
+                IsEligible = isEligible,
+                ActiveTab = activeTab
             };
         }
 
@@ -73,11 +92,43 @@ namespace ITI.BLL.Services.Implementation
                 BloodTypeId = donor.BloodTypeId,
                 DateOfBirth = donor.DateOfBirth,
                 Gender = donor.Gender,
+                Weight = donor.Weight,
+                Height = donor.Height,
+                KnownAllergies = donor.KnownAllergies,
+                ChronicConditions = donor.ChronicConditions,
                 AvailableBloodTypes = bloodTypes.Select(b => new BloodTypeOption
                 {
                     Id = b.Id,
                     Name = b.Name
                 }).ToList()
+            };
+        }
+
+        public async Task<DonorProfileViewViewModel?> GetDonorProfileView(Guid userId)
+        {
+            var donor = await _donorRepo.GetByUserIdWithDetailsAsync(userId);
+            if (donor == null) return null;
+
+            var lastDonation = donor.Donations.OrderByDescending(d => d.DonationDate).FirstOrDefault();
+            DateTime? lastDonationDate = lastDonation?.DonationDate ?? donor.LastDonationDate;
+
+            var (isEligible, nextEligible, _) = CalculateEligibility(lastDonationDate);
+
+            return new DonorProfileViewViewModel
+            {
+                FullName = donor.User.FullName,
+                Email = donor.User.Email ?? string.Empty,
+                Phone = donor.User.PhoneNumber ?? string.Empty,
+                City = donor.User.City,
+                BloodTypeName = donor.BloodType?.Name ?? "Not set",
+                DateOfBirth = donor.DateOfBirth,
+                LastDonationDate = lastDonationDate,
+                EligibleFromDate = nextEligible,
+                IsEligible = isEligible,
+                Weight = donor.Weight,
+                Height = donor.Height,
+                KnownAllergies = donor.KnownAllergies,
+                ChronicConditions = donor.ChronicConditions
             };
         }
 
@@ -89,16 +140,18 @@ namespace ITI.BLL.Services.Implementation
                 return new AuthResult { Succeeded = false, Errors = new[] { "Donor not found" } };
             }
 
-            
             donor.User.FullName = model.FullName;
             donor.User.PhoneNumber = model.Phone;
             donor.User.City = model.City;
             await _userManager.UpdateAsync(donor.User);
 
-           
             donor.BloodTypeId = model.BloodTypeId;
             donor.DateOfBirth = model.DateOfBirth;
             donor.Gender = model.Gender;
+            donor.Weight = model.Weight;
+            donor.Height = model.Height;
+            donor.KnownAllergies = model.KnownAllergies;
+            donor.ChronicConditions = model.ChronicConditions;
             await _donorRepo.UpdateDonorAsync(donor);
 
             return new AuthResult { Succeeded = true };

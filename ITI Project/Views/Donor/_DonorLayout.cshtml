@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BloodLink+</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        .donor-portal-topbar {
+            background: #fff;
+            padding: 14px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .donor-portal-topbar .brand {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+
+        .donor-portal-topbar .sign-out-link {
+            color: #b3122b;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .donor-portal-topbar .sign-out-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body style="margin:0;">
+
+    <div class="donor-portal-topbar">
+        <a class="brand" href="/">
+            <span style="background:#b3122b;color:#fff;padding:4px 8px;border-radius:6px;margin-right:6px;">🩸</span>
+            BloodLink<span style="color:#b3122b">+</span>
+        </a>
+        <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+            <button type="submit" class="sign-out-link" style="background:none;border:none;">
+                 Sign Out
+            </button>
+        </form>
+    </div>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

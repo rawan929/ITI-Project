@@ -24,6 +24,7 @@ namespace ITI.PL.Controllers
             return Guid.TryParse(userIdString, out var userId) ? userId : null;
         }
 
+        // ===== Dashboard =====
         public async Task<IActionResult> Dashboard()
         {
             var userId = GetCurrentUserId();
@@ -32,11 +33,31 @@ namespace ITI.PL.Controllers
             var dashboardData = await _donorService.GetDashboardData(userId.Value);
             if (dashboardData == null) return RedirectToAction("AccessDenied", "Account");
 
+            var headerData = await _donorService.GetHeaderData(userId.Value, "Dashboard");
+            ViewBag.Header = headerData;
+
             return View(dashboardData);
         }
 
+        // ===== Profile =====
         [HttpGet]
         public async Task<IActionResult> Profile()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            var profileView = await _donorService.GetDonorProfileView(userId.Value);
+            if (profileView == null) return RedirectToAction("AccessDenied", "Account");
+
+            var headerData = await _donorService.GetHeaderData(userId.Value, "Profile");
+            ViewBag.Header = headerData;
+
+            return View(profileView);
+        }
+
+        // ===== Edit Profile =====
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Account");
@@ -44,21 +65,24 @@ namespace ITI.PL.Controllers
             var profile = await _donorService.GetDonorProfile(userId.Value);
             if (profile == null) return RedirectToAction("AccessDenied", "Account");
 
+            var headerData = await _donorService.GetHeaderData(userId.Value, "Profile");
+            ViewBag.Header = headerData;
+
             return View(profile);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Profile(DonorProfileViewModel model)
+        public async Task<IActionResult> EditProfile(DonorProfileViewModel model)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Account");
 
             if (!ModelState.IsValid)
             {
-                
                 var profile = await _donorService.GetDonorProfile(userId.Value);
                 model.AvailableBloodTypes = profile?.AvailableBloodTypes ?? new();
+                ViewBag.Header = await _donorService.GetHeaderData(userId.Value, "Profile");
                 return View(model);
             }
 
@@ -71,6 +95,7 @@ namespace ITI.PL.Controllers
 
                 var profile = await _donorService.GetDonorProfile(userId.Value);
                 model.AvailableBloodTypes = profile?.AvailableBloodTypes ?? new();
+                ViewBag.Header = await _donorService.GetHeaderData(userId.Value, "Profile");
                 return View(model);
             }
 
@@ -78,6 +103,7 @@ namespace ITI.PL.Controllers
             return RedirectToAction("Profile");
         }
 
+        // ===== Change Password =====
         [HttpGet]
         public IActionResult ChangePassword()
         {

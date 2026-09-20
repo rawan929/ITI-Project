@@ -1,0 +1,144 @@
+﻿@model ITI.BLL.ViewModel.Donor.DonorHeaderViewModel
+
+<style>
+    .donor-header-wrapper {
+        background: #0f1420;
+        color: #fff;
+    }
+
+    .donor-profile-bar {
+        padding: 24px 40px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .donor-avatar {
+        width: 60px;
+        height: 60px;
+        background: #b3122b;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.3rem;
+    }
+
+    .donor-header-wrapper .welcome-text {
+        color: #b7bac2;
+        font-size: 0.85rem;
+        margin-bottom: 2px;
+    }
+
+    .donor-header-wrapper h3 {
+        font-family: Georgia, serif;
+        margin-bottom: 2px;
+    }
+
+    .donor-header-wrapper .since-text {
+        color: #9a9da5;
+        font-size: 0.85rem;
+    }
+
+    .badge-eligible {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-not-eligible {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .btn-edit-profile-header {
+        background: #fff;
+        color: #0f1420;
+        font-weight: 600;
+        border-radius: 6px;
+        padding: 6px 14px;
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+
+        .btn-edit-profile-header:hover {
+            background: #eee;
+            color: #0f1420;
+        }
+
+    .donor-tabs {
+        display: flex;
+        gap: 30px;
+        padding: 0 40px;
+        margin-top: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+        .donor-tabs a {
+            color: #9a9da5;
+            text-decoration: none;
+            padding: 14px 4px;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+        }
+
+            .donor-tabs a.active {
+                color: #fff;
+                border-bottom-color: #b3122b;
+                font-weight: 600;
+            }
+
+            .donor-tabs a.disabled-tab {
+                color: #5a5d66;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+</style>
+
+<div class="donor-header-wrapper">
+    <div class="donor-profile-bar">
+        <div class="d-flex gap-3">
+            <div class="donor-avatar">
+                @(Model.FullName.Length > 0 ? Model.FullName.Substring(0, Math.Min(2, Model.FullName.Length)).ToUpper() : "??")
+            </div>
+            <div>
+                <div class="welcome-text">Welcome back</div>
+                <h3>@Model.FullName</h3>
+                <div class="since-text">Registered donor since @Model.MemberSince</div>
+            </div>
+        </div>
+        <div class="mt-2 d-flex align-items-center gap-2">
+            @if (Model.IsEligible)
+            {
+                <span class="badge-eligible">● Eligible to Donate</span>
+            }
+            else
+            {
+                <span class="badge-not-eligible">● Not Eligible Yet</span>
+            }
+            <a asp-action="Profile" asp-controller="Donor" class="btn-edit-profile-header">Edit Profile</a>
+        </div>
+    </div>
+
+    <div class="donor-tabs">
+        <a asp-action="Dashboard" asp-controller="Donor"
+           class="@(Model.ActiveTab == "Dashboard" ? "active" : "")">Dashboard</a>
+
+        <a href="#" class="disabled-tab" title="Coming soon">Find Requests</a>
+        <a href="#" class="disabled-tab" title="Coming soon">My Donations</a>
+        <a href="#" class="disabled-tab" title="Coming soon">Appointments</a>
+
+        <a asp-action="Profile" asp-controller="Donor"
+           class="@(Model.ActiveTab == "Profile" ? "active" : "")">Profile</a>
+    </div>
+</div>

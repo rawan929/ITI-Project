@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ITI.BLL.ViewModel.Donor
 {
     public class DonorDashboardViewModel
     {
         public string FullName { get; set; } = string.Empty;
-        public string MemberSince { get; set; } = string.Empty; // "March 2023"
+        public string MemberSince { get; set; } = string.Empty;
         public bool IsEligible { get; set; }
 
         public string BloodTypeName { get; set; } = "Not set";
