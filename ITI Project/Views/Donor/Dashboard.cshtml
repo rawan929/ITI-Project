@@ -72,6 +72,70 @@
         .view-all-link:hover {
             text-decoration: underline;
         }
+
+    .request-list-card {
+        background: #fff;
+        border: 1px solid #eaeaea;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .request-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .request-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+    .request-blood-badge {
+        background: #fdecec;
+        color: #b3122b;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .request-hospital-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .request-units {
+        font-size: 0.78rem;
+        color: #888;
+    }
+
+    .urgency-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+        .urgency-badge.urgency-critical,
+        .urgency-badge.urgency-emergency {
+            background: #fdecec;
+            color: #b3122b;
+        }
+
+        .urgency-badge.urgency-urgent {
+            background: #fff4e0;
+            color: #b7791f;
+        }
+
+        .urgency-badge.urgency-normal {
+            background: #eef2ff;
+            color: #4338ca;
+        }
 </style>
 
 @await Html.PartialAsync("_DonorHeader", (ITI.BLL.ViewModel.Donor.DonorHeaderViewModel)ViewBag.Header)
@@ -122,17 +186,41 @@
 
     <div class="row g-3">
         <div class="col-md-8">
-            <div class="placeholder-box">
-                <div class="section-header mb-2" style="text-align:left;">
+            <div class="request-list-card">
+                <div class="section-header mb-3">
                     <strong>🩸 Nearby Blood Requests</strong>
-                    <a href="#" class="view-all-link">View all</a>
+                    <a asp-action="FindRequests" asp-controller="Donor" class="view-all-link">View all</a>
                 </div>
-                <small>Coming soon — depends on Blood Request module</small>
+
+                @if (Model.NearbyRequests.Any())
+                {
+                    @foreach (var req in Model.NearbyRequests)
+                    {
+                        <div class="request-row">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="request-blood-badge">@req.BloodTypeName</span>
+                                <div>
+                                    <div class="request-hospital-name">@req.HospitalName</div>
+                                    <div class="request-units">@req.UnitsRequired units needed</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="urgency-badge urgency-@req.Urgency.ToLower()">@req.Urgency</span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="placeholder-box" style="border:none;padding:20px 0;">
+                        <small>No active requests match your blood type right now.</small>
+                    </div>
+                }
             </div>
         </div>
         <div class="col-md-4">
             <div class="placeholder-box">
-                🔔 Notifications<br />
+                 Notifications<br />
                 <small>Coming soon — depends on Notifications module</small>
             </div>
         </div>
@@ -140,7 +228,7 @@
 
     <div class="mt-3">
         <div class="placeholder-box">
-            📅 Upcoming Appointment<br />
+             Upcoming Appointment<br />
             <small>Coming soon — depends on Appointments module</small>
         </div>
     </div>

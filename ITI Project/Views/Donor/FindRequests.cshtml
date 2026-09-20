@@ -1,0 +1,143 @@
+﻿@model List<ITI.BLL.ViewModel.Donor.NearbyRequestItemViewModel>
+@{
+    ViewData["Title"] = "Find Requests";
+    Layout = "_DonorLayout";
+}
+
+<style>
+    .find-requests-container {
+        padding: 30px 40px;
+        background: #f5f6f8;
+        min-height: 60vh;
+    }
+
+    .find-requests-header {
+        margin-bottom: 20px;
+    }
+
+        .find-requests-header h4 {
+            font-family: Georgia, serif;
+            margin-bottom: 4px;
+        }
+
+        .find-requests-header p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+    .filter-pills {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .filter-pill {
+        padding: 6px 16px;
+        border-radius: 20px;
+        border: 1px solid #dcdde1;
+        background: #fff;
+        color: #444;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+        .filter-pill.active {
+            background: #b3122b;
+            color: #fff;
+            border-color: #b3122b;
+        }
+
+    .request-card {
+        background: #fff;
+        border: 1px solid #eaeaea;
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .btn-respond {
+        background: #b3122b;
+        color: #fff;
+        font-weight: 600;
+        padding: 8px 20px;
+        border-radius: 8px;
+        border: none;
+    }
+
+        .btn-respond:hover {
+            background: #8f0e22;
+            color: #fff;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: #999;
+    }
+</style>
+
+@await Html.PartialAsync("_DonorHeader", (ITI.BLL.ViewModel.Donor.DonorHeaderViewModel)ViewBag.Header)
+
+<div class="find-requests-container">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="find-requests-header">
+        <h4>Blood Requests Matching @ViewBag.BloodTypeName</h4>
+        <p>@Model.Count() active requests near you</p>
+    </div>
+
+    <div class="filter-pills">
+        <a asp-action="FindRequests" asp-route-urgency="All"
+           class="filter-pill @(ViewBag.SelectedUrgency == "All" ? "active" : "")">All</a>
+        <a asp-action="FindRequests" asp-route-urgency="Critical"
+           class="filter-pill @(ViewBag.SelectedUrgency == "Critical" ? "active" : "")">Critical</a>
+        <a asp-action="FindRequests" asp-route-urgency="Urgent"
+           class="filter-pill @(ViewBag.SelectedUrgency == "Urgent" ? "active" : "")">Urgent</a>
+        <a asp-action="FindRequests" asp-route-urgency="Normal"
+           class="filter-pill @(ViewBag.SelectedUrgency == "Normal" ? "active" : "")">Normal</a>
+    </div>
+
+    @if (Model.Any())
+    {
+        @foreach (var req in Model)
+        {
+            <div class="request-card">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="request-blood-badge">@req.BloodTypeName</span>
+                    <div>
+                        <div class="request-hospital-name" style="font-size:1rem;">@req.HospitalName</div>
+                        <div class="request-units">@req.UnitsRequired units needed</div>
+                    </div>
+                    <span class="urgency-badge urgency-@req.Urgency.ToLower()">@req.Urgency</span>
+                </div>
+
+                <form asp-action="RespondToRequest" asp-controller="Donor" method="post">
+                    <input type="hidden" name="requestId" value="@req.Id" />
+                    <button type="submit" class="btn-respond">Respond to Request</button>
+                </form>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <div style="font-size:2rem;">🩸</div>
+            <h5>No blood requests found</h5>
+            <p>There are currently no requests matching your criteria.</p>
+        </div>
+    }
+</div>

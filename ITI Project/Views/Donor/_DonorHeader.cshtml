@@ -134,7 +134,8 @@
         <a asp-action="Dashboard" asp-controller="Donor"
            class="@(Model.ActiveTab == "Dashboard" ? "active" : "")">Dashboard</a>
 
-        <a href="#" class="disabled-tab" title="Coming soon">Find Requests</a>
+        <a asp-action="FindRequests" asp-controller="Donor"
+           class="@(Model.ActiveTab == "FindRequests" ? "active" : "")">Find Requests</a>
         <a href="#" class="disabled-tab" title="Coming soon">My Donations</a>
         <a href="#" class="disabled-tab" title="Coming soon">Appointments</a>
 
