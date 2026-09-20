@@ -8,7 +8,7 @@ namespace ITI.BLL.Services.Interface
 {
     public interface IBloodRequestService
     {
-        Task CreateRequestAsync(CreateBloodRequestViewModel model, Guid hospitalId);
+        Task<CreateRequestResult> CreateRequestAsync(CreateBloodRequestViewModel model, Guid hospitalId);
 
         Task<IEnumerable<BloodRequest>> GetActiveRequestsAsync(
             string city,

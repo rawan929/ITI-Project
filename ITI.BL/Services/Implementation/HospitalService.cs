@@ -42,5 +42,24 @@ namespace ITI.BLL.Services.Implementation
                 IsApproved = hospital.IsApproved
             };
         }
+
+        public async Task<bool> UpdateHospitalProfileAsync(Guid userId, HospitalProfileVM model)
+        {
+            var hospital = await _context.Hospitals
+                .FirstOrDefaultAsync(h => h.UserId == userId);
+
+            if (hospital == null)
+            {
+                return false;
+            }
+
+            hospital.Name = model.Name;
+            hospital.Address = model.Address;
+            hospital.City = model.City;
+            hospital.Phone = model.Phone;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

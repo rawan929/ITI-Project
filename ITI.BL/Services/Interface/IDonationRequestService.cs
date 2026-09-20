@@ -7,8 +7,10 @@ namespace ITI.BLL.Services.Interface
 {
     public interface IDonationRequestService
     {
-        Task<bool> RespondToRequestAsync(Guid donorId, Guid requestId);
+        Task<DonationResponseResult> RespondToRequestAsync(Guid donorId, Guid requestId);
 
         Task<List<DonorResponseViewModel>> GetResponsesForRequestAsync(Guid requestId);
+
+        Task<List<DonorResponseHistoryVM>> GetDonorResponseHistoryAsync(Guid donorId);
     }
 }

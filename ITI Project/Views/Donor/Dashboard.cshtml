@@ -63,21 +63,21 @@
         border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
-    .nav-tabs-custom a {
-        color: #9a9da5;
-        text-decoration: none;
-        padding: 14px 4px;
-        margin-right: 30px;
-        display: inline-block;
-        font-size: 0.9rem;
-        border-bottom: 2px solid transparent;
-    }
+        .nav-tabs-custom a {
+            color: #9a9da5;
+            text-decoration: none;
+            padding: 14px 4px;
+            margin-right: 30px;
+            display: inline-block;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+        }
 
-    .nav-tabs-custom a.active {
-        color: #fff;
-        border-bottom-color: #b3122b;
-        font-weight: 600;
-    }
+            .nav-tabs-custom a.active {
+                color: #fff;
+                border-bottom-color: #b3122b;
+                font-weight: 600;
+            }
 
     .stats-container {
         padding: 30px 40px;
@@ -107,8 +107,13 @@
         margin: 6px 0 2px;
     }
 
-    .stat-value.red { color: #b3122b; }
-    .stat-value.green { color: #22c55e; }
+        .stat-value.red {
+            color: #b3122b;
+        }
+
+        .stat-value.green {
+            color: #22c55e;
+        }
 
     .stat-sub {
         font-size: 0.78rem;
@@ -149,14 +154,14 @@
         <a asp-action="Profile" asp-controller="Donor"
            class="btn btn-sm"
            style="background:#fff;color:#0f1420;font-weight:600;border-radius:6px;padding:6px 14px;">
-             Edit Profile
+            Edit Profile
         </a>
     </div>
 </div>
 
 <div class="nav-tabs-custom">
     <a href="#" class="active">Overview</a>
-    <a href="#" onclick="alert('Coming soon - waiting on Blood Bank module'); return false;">History</a>
+    <a asp-action="History" asp-controller="Donor">History</a>
     <a href="#" onclick="alert('Coming soon - waiting on Blood Bank module'); return false;">Appointments</a>
 </div>
 
@@ -205,16 +210,22 @@
     </div>
 
     <div class="row g-3">
-        <div class="col-md-8">
-            <div class="placeholder-box">
-                🩸 Nearby Blood Requests<br />
-                <small>Coming soon — depends on Blood Request module</small>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="placeholder-box">
-                🔔 Notifications<br />
-                <small>Coming soon — depends on Notifications module</small>
+        <div class="col-12">
+            <div class="stat-card d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <div class="stat-label">🩸 Nearby Blood Requests</div>
+                    <div class="stat-value red" style="font-size:1.6rem;">
+                        @Model.ActiveRequestsCount
+                    </div>
+                    <div class="stat-sub">
+                        @(Model.ActiveRequestsCount == 1 ? "request currently active" : "requests currently active")
+                    </div>
+                </div>
+                <a asp-controller="BloodRequest" asp-action="Index"
+                   class="btn"
+                   style="background:#b3122b;color:#fff;font-weight:600;border-radius:8px;padding:10px 20px;">
+                    View Requests
+                </a>
             </div>
         </div>
     </div>

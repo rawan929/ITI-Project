@@ -71,6 +71,7 @@ namespace ITI.PL.Controllers
             {
                 "Admin" => RedirectToAction("Index", "Admin"),
                 "Donor" => RedirectToAction("Dashboard", "Donor"),
+                "Hospital" => RedirectToAction("Dashboard", "Hospital"),
                 _ => RedirectToAction("Index", "Home")
             };
         }

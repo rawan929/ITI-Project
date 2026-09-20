@@ -1,7 +1,9 @@
 ﻿using ITI.BLL.Services.Interface;
 using ITI.BLL.ViewModel.Donor;
+using ITI.DAL.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -12,10 +14,20 @@ namespace ITI.PL.Controllers
     public class DonorController : Controller
     {
         private readonly IDonorService _donorService;
+        private readonly IBloodRequestService _bloodRequestService;
+        private readonly IDonationRequestService _donationRequestService;
+        private readonly AppDbcontext _context;
 
-        public DonorController(IDonorService donorService)
+        public DonorController(
+            IDonorService donorService,
+            IBloodRequestService bloodRequestService,
+            IDonationRequestService donationRequestService,
+            AppDbcontext context)
         {
             _donorService = donorService;
+            _bloodRequestService = bloodRequestService;
+            _donationRequestService = donationRequestService;
+            _context = context;
         }
 
         private Guid? GetCurrentUserId()
@@ -32,7 +44,23 @@ namespace ITI.PL.Controllers
             var dashboardData = await _donorService.GetDashboardData(userId.Value);
             if (dashboardData == null) return RedirectToAction("AccessDenied", "Account");
 
+            var activeRequests = await _bloodRequestService.GetActiveRequestsAsync(null, null);
+            dashboardData.ActiveRequestsCount = activeRequests.Count();
+
             return View(dashboardData);
+        }
+
+        public async Task<IActionResult> History()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            var donor = await _context.Donors.FirstOrDefaultAsync(d => d.UserId == userId.Value);
+            if (donor == null) return RedirectToAction("AccessDenied", "Account");
+
+            var history = await _donationRequestService.GetDonorResponseHistoryAsync(donor.Id);
+
+            return View(history);
         }
 
         [HttpGet]
@@ -56,7 +84,6 @@ namespace ITI.PL.Controllers
 
             if (!ModelState.IsValid)
             {
-                
                 var profile = await _donorService.GetDonorProfile(userId.Value);
                 model.AvailableBloodTypes = profile?.AvailableBloodTypes ?? new();
                 return View(model);

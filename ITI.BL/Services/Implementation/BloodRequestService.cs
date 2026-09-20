@@ -11,40 +11,50 @@ namespace ITI.BLL.Services.Implementation
 {
     public class BloodRequestService : IBloodRequestService
     {
-            private readonly AppDbcontext _context;
+        private readonly AppDbcontext _context;
 
-            public BloodRequestService(AppDbcontext context)
+        public BloodRequestService(AppDbcontext context)
+        {
+            _context = context;
+        }
+
+        public async Task<CreateRequestResult> CreateRequestAsync(
+            CreateBloodRequestViewModel model,
+            Guid hospitalId)
+        {
+            var hospital = await _context.Hospitals
+                .FirstOrDefaultAsync(h => h.Id == hospitalId);
+
+            if (hospital == null)
             {
-                _context = context;
+                return CreateRequestResult.HospitalNotFound;
             }
 
-            public async Task CreateRequestAsync(  CreateBloodRequestViewModel model, Guid hospitalId)
+            if (!hospital.IsApproved)
             {
-                var hospital = await _context.Hospitals
-                    .FirstOrDefaultAsync(h => h.Id == hospitalId);
-
-                if (hospital == null)
-                    throw new Exception("Hospital not found.");
-
-                if (!hospital.IsApproved)
-                    throw new Exception("Hospital is not approved.");
-
-                var request = new BloodRequest
-                {
-                    Id = Guid.NewGuid(),
-                    HospitalId = hospitalId,
-                    BloodTypeId = model.BloodTypeId,
-                    UnitsRequired = model.UnitsRequired,
-                    Urgency = model.Urgency,
-                    Status = "Pending"
-                };
-
-                _context.BloodRequests.Add(request);
-
-                await _context.SaveChangesAsync();
+                return CreateRequestResult.HospitalNotApproved;
             }
 
-        public async Task<IEnumerable<BloodRequest>> GetActiveRequestsAsync(string city, int? bloodTypeId)
+            var request = new BloodRequest
+            {
+                Id = Guid.NewGuid(),
+                HospitalId = hospitalId,
+                BloodTypeId = model.BloodTypeId,
+                UnitsRequired = model.UnitsRequired,
+                Urgency = model.Urgency,
+                Status = "Pending"
+            };
+
+            _context.BloodRequests.Add(request);
+
+            await _context.SaveChangesAsync();
+
+            return CreateRequestResult.Success;
+        }
+
+        public async Task<IEnumerable<BloodRequest>> GetActiveRequestsAsync(
+            string city,
+            int? bloodTypeId)
         {
             var query = _context.BloodRequests
                 .Include(r => r.Hospital)
@@ -62,8 +72,7 @@ namespace ITI.BLL.Services.Implementation
             }
 
             return await query.ToListAsync();
-        
-            }
+        }
 
         public async Task<bool> CloseRequestAsync(Guid requestId)
         {
@@ -78,7 +87,6 @@ namespace ITI.BLL.Services.Implementation
             await _context.SaveChangesAsync();
 
             return true;
-
         }
     }
 }
