@@ -73,6 +73,8 @@ namespace ITI.BLL.Services.Implementation
                 Id = h.Id,
                 Name = h.Name,
                 City = h.City,
+                Address = h.Address,
+                Type = "Hospital",
                 Email = h.User?.Email ?? "",
                 PhoneNumber = h.User?.PhoneNumber ?? "",
                 IsApproved = h.IsApproved

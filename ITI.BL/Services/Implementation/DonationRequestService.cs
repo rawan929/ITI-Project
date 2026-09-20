@@ -13,13 +13,49 @@ namespace ITI.BLL.Services.Implementation
     {
         private readonly AppDbcontext _context;
 
+        private static readonly Dictionary<string, HashSet<string>> CompatibilityMap = new()
+        {
+            ["O-"] = new HashSet<string> { "O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+" },
+            ["O+"] = new HashSet<string> { "O+", "A+", "B+", "AB+" },
+            ["A-"] = new HashSet<string> { "A-", "A+", "AB-", "AB+" },
+            ["A+"] = new HashSet<string> { "A+", "AB+" },
+            ["B-"] = new HashSet<string> { "B-", "B+", "AB-", "AB+" },
+            ["B+"] = new HashSet<string> { "B+", "AB+" },
+            ["AB-"] = new HashSet<string> { "AB-", "AB+" },
+            ["AB+"] = new HashSet<string> { "AB+" },
+        };
+
         public DonationRequestService(AppDbcontext context)
         {
             _context = context;
         }
 
-        public async Task<bool> RespondToRequestAsync(Guid donorId, Guid requestId)
+        private static bool IsCompatible(string donorBloodType, string requestedBloodType)
         {
+            return CompatibilityMap.TryGetValue(donorBloodType, out var compatibleTypes)
+                   && compatibleTypes.Contains(requestedBloodType);
+        }
+
+        public async Task<DonationResponseResult> RespondToRequestAsync(Guid donorId, Guid requestId)
+        {
+            var donor = await _context.Donors
+                .Include(d => d.BloodType)
+                .FirstOrDefaultAsync(d => d.Id == donorId);
+
+            var request = await _context.BloodRequests
+                .Include(r => r.BloodType)
+                .FirstOrDefaultAsync(r => r.Id == requestId);
+
+            if (donor?.BloodType == null || request?.BloodType == null)
+            {
+                return DonationResponseResult.NotFound;
+            }
+
+            if (!IsCompatible(donor.BloodType.Name, request.BloodType.Name))
+            {
+                return DonationResponseResult.IncompatibleBloodType;
+            }
+
             var existingResponse = await _context.DonationRequests
                 .FirstOrDefaultAsync(x =>
                     x.DonorId == donorId &&
@@ -27,7 +63,7 @@ namespace ITI.BLL.Services.Implementation
 
             if (existingResponse != null)
             {
-                return false;
+                return DonationResponseResult.AlreadyResponded;
             }
 
             var response = new DonationRequest
@@ -41,7 +77,7 @@ namespace ITI.BLL.Services.Implementation
             await _context.DonationRequests.AddAsync(response);
             await _context.SaveChangesAsync();
 
-            return true;
+            return DonationResponseResult.Success;
         }
 
         public async Task<List<DonorResponseViewModel>> GetResponsesForRequestAsync(Guid requestId)
@@ -66,6 +102,30 @@ namespace ITI.BLL.Services.Implementation
 
             return responses;
         }
+
+        public async Task<List<DonorResponseHistoryVM>> GetDonorResponseHistoryAsync(Guid donorId)
+        {
+            var history = await _context.DonationRequests
+                .Where(dr => dr.DonorId == donorId)
+                .Include(dr => dr.BloodRequest)
+                    .ThenInclude(br => br.Hospital)
+                .Include(dr => dr.BloodRequest)
+                    .ThenInclude(br => br.BloodType)
+                .OrderByDescending(dr => dr.Id)
+                .Select(dr => new DonorResponseHistoryVM
+                {
+                    RequestId = dr.BloodRequestId,
+                    HospitalName = dr.BloodRequest.Hospital.Name,
+                    City = dr.BloodRequest.Hospital.City,
+                    BloodType = dr.BloodRequest.BloodType.Name,
+                    UnitsRequired = dr.BloodRequest.UnitsRequired,
+                    Urgency = dr.BloodRequest.Urgency,
+                    RequestStatus = dr.BloodRequest.Status,
+                    ResponseStatus = dr.Status
+                })
+                .ToListAsync();
+
+            return history;
+        }
     }
 }
-
