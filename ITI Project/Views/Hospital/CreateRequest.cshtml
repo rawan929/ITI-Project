@@ -33,8 +33,11 @@
             <div class="d-flex gap-4">
                 <a asp-action="Dashboard" class="hosp-nav-link">Overview</a>
                 <a asp-action="CreateRequest" class="hosp-nav-link active">Create Request</a>
-                <a asp-controller="BloodRequest" asp-action="Index" class="hosp-nav-link">Active Requests</a>
-                <a asp-action="Profile" class="hosp-nav-link">Profile</a>
+               
+                @if ((bool)(ViewBag.IsHospitalApproved ?? false))
+                {
+                    <a asp-action="Profile" class="hosp-nav-link">Profile</a>
+                }
             </div>
         </div>
     </div>

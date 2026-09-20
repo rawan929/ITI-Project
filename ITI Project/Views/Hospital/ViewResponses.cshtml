@@ -6,54 +6,12 @@
 }
 
 <style>
-    .hosp-page {
-        --brand-red: #b3122b;
-        --brand-red-dark: #8f0e22;
-        --dark-navy: #0f1420;
-        font-family: 'Segoe UI', Tahoma, sans-serif;
-    }
-
-        .hosp-page .card {
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .hosp-page .icon-circle {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .hosp-page .avatar-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(179,18,43,.08);
-            color: var(--brand-red);
-            font-weight: 700;
-            font-size: .85rem;
-        }
-
-        .hosp-page .hosp-header {
-            background: var(--dark-navy);
-            color: #fff;
-            margin: -1rem -1rem 2rem -1rem;
-            padding: 2rem 1.5rem 0;
-        }
-
-        .hosp-page .hosp-nav-link {
-            color: rgba(255,255,255,.6);
-            text-decoration: none;
-            font-size: .9rem;
-            padding-bottom: 1rem;
-            display: inline-block;
-        }
+    .hosp-page { --brand-red:#b3122b; --brand-red-dark:#8f0e22; --dark-navy:#0f1420; font-family:'Segoe UI', Tahoma, sans-serif; }
+    .hosp-page .card { border-radius:12px; border:1px solid #e5e7eb; }
+    .hosp-page .icon-circle { width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; }
+    .hosp-page .avatar-circle { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(179,18,43,.08); color:var(--brand-red); font-weight:700; font-size:.85rem; }
+    .hosp-page .hosp-header { background:var(--dark-navy); color:#fff; margin:-1rem -1rem 2rem -1rem; padding:2rem 1.5rem 0; }
+    .hosp-page .hosp-nav-link { color:rgba(255,255,255,.6); text-decoration:none; font-size:.9rem; padding-bottom:1rem; display:inline-block; }
 </style>
 
 <div class="hosp-page">
@@ -73,7 +31,11 @@
             <div class="d-flex gap-4">
                 <a asp-action="Dashboard" class="hosp-nav-link">Overview</a>
                 <a asp-action="CreateRequest" class="hosp-nav-link">Create Request</a>
-               <a asp-action="Profile" class="hosp-nav-link">Profile</a>
+
+                @if ((bool)(ViewBag.IsHospitalApproved ?? false))
+                {
+                    <a asp-action="Profile" class="hosp-nav-link">Profile</a>
+                }
             </div>
         </div>
     </div>

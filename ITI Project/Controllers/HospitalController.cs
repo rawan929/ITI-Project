@@ -3,6 +3,7 @@ using ITI.BLL.ViewModel;
 using ITI.DAL.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -32,6 +33,26 @@ namespace ITI_Project.Controllers
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return Guid.TryParse(userIdString, out var userId) ? userId : null;
+        }
+
+        // بيشتغل تلقائيًا قبل أي Action في الكونترولر ده
+        // بيحط في ViewBag.IsHospitalApproved حالة الاعتماد، عشان كل الـ Views تقدر تستخدمها
+        public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            var userId = GetCurrentUserId();
+            if (userId != null)
+            {
+                var hospital = await _context.Hospitals
+                    .FirstOrDefaultAsync(h => h.UserId == userId);
+
+                ViewBag.IsHospitalApproved = hospital?.IsApproved ?? false;
+            }
+            else
+            {
+                ViewBag.IsHospitalApproved = false;
+            }
+
+            await next();
         }
 
         public async Task<IActionResult> Dashboard()
