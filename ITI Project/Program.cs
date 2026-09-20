@@ -43,6 +43,8 @@ namespace ITI_Project
             builder.Services.AddScoped<IAppointmentService , AppointmentService>();
             builder.Services.AddScoped<IDonationService , DonationService>();
             builder.Services.AddScoped<IBloodInventoryRepo, BloodInventoryRepo>();
+            builder.Services.AddScoped<IBloodBankService, BloodBankService>();
+            builder.Services.AddScoped<IInventoryService, InventoryService>();
 
             var app = builder.Build();
 

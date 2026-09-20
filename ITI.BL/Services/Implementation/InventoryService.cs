@@ -1,10 +1,8 @@
-﻿using ITI.BLL.Services.Interface;
+﻿using ITI.BLL.Constants;
+using ITI.BLL.Services.Interface;
 using ITI.BLL.ViewModel;
 using ITI.DAL.Models;
 using ITI.DAL.Repo.Interface;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ITI.BLL.Services.Implementation
 {
@@ -12,29 +10,47 @@ namespace ITI.BLL.Services.Implementation
     {
         private readonly IBloodBankRepo _bloodBankRepo;
         private readonly IBloodInventoryRepo _bloodInventoryRepo;
-        public InventoryService(IBloodBankRepo bloodBankRepo , IBloodInventoryRepo bloodInventoryRepo)
+
+        public InventoryService(IBloodBankRepo bloodBankRepo, IBloodInventoryRepo bloodInventoryRepo)
         {
             _bloodBankRepo = bloodBankRepo;
             _bloodInventoryRepo = bloodInventoryRepo;
         }
+
         public async Task<InventoryVM> GetInventoryVMAsync(Guid bloodBankId)
         {
             var bank = await _bloodBankRepo.GetByIdAsync(bloodBankId);
             if (bank == null) return new InventoryVM();
 
-            var inventoryRecord = await _bloodInventoryRepo.GetByBankIdAsync(bloodBankId);
-            var model = new InventoryVM
+            var bloodTypes = await _bloodInventoryRepo.GetAllBloodTypesAsync();
+            var records = await _bloodInventoryRepo.GetByBankIdAsync(bloodBankId);
+            var unitsByType = records
+                .GroupBy(r => r.BloodTypeId)
+                .ToDictionary(g => g.Key, g => g.Sum(r => r.UnitsAvailable));
+
+            var items = bloodTypes.Select(type =>
+            {
+                unitsByType.TryGetValue(type.Id, out var units);
+                var capacity = InventoryRules.CapacityFor(type.Name);
+                var percent = capacity > 0 ? (int)Math.Round(units * 100.0 / capacity) : 0;
+
+                return new InventoryItemVM
+                {
+                    BloodTypeId = type.Id,
+                    BloodTypeName = type.Name,
+                    UnitsAvailable = units,
+                    Capacity = capacity,
+                    Percent = percent,
+                    Level = InventoryRules.LevelFor(percent)
+                };
+            }).ToList();
+
+            return new InventoryVM
             {
                 BloodBankId = bank.Id,
                 BloodBankName = bank.Name,
-                invetoryItems = inventoryRecord.Select(i => new InvetoryItemVM
-                {
-                    BloodTybeId = i.BloodTypeId,
-                    BloodTybeName = i.BloodType?.Name ?? string.Empty,
-                    UnitsAvailable = i.UnitsAvailable,
-                }).ToList()
+                Items = items
             };
-            return model;
         }
 
         public async Task<bool> UpdateStockAsync(Guid bloodBankId, int bloodTypeId, int unitsToAdd)
@@ -64,4 +80,3 @@ namespace ITI.BLL.Services.Implementation
         }
     }
 }
-

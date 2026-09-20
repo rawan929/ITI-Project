@@ -13,6 +13,8 @@ namespace ITI.BLL.ViewModel
         public int Units { get; set; }
         public string? Status { get; set; }
         public DateTime DonationDate { get; set; }
+        public string? BloodType { get; set; }
+        public string Code => $"DON-{DonationDate:yyyy}-{Id.ToString("N")[..6].ToUpper()}";
     }
 
     public class CreateDonationVM

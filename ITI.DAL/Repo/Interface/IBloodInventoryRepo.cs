@@ -9,6 +9,7 @@ namespace ITI.DAL.Repo.Interface
     {
         Task<IEnumerable<BloodInventory>> GetByBankIdAsync(Guid bloodBankId);
         Task<BloodInventory?> GetByBankAndTypeAsync(Guid bloodBankId, int bloodTypeId);
+        Task<List<BloodType>> GetAllBloodTypesAsync();
         Task AddAsync(BloodInventory inventory);
         void Update(BloodInventory inventory);
         Task<bool> SaveChangesAsync();

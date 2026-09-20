@@ -12,6 +12,7 @@ namespace ITI.BLL.ViewModel
         public Guid BloodBankId { get; set; }
         public string? BloodBankName { get; set; }
         public DateTime AppointmentDate { get; set; }
+        public string? BloodType { get; set; }
         public string Status { get; set; } = "Pending";
     }
     public class CreateAppointmentVM

@@ -25,18 +25,52 @@ namespace ITI.DAL.Repo.Implementation
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Appointment>> GetByBankIdAsync(Guid bloodBankId)
+        public async Task<IEnumerable<Appointment>> GetByBankIdAsync(Guid bloodBankId, DateTime? date = null)
         {
-            return await _context.Appointments
-                .Include(a => a.Donor)
-                .Where(a => a.BloodBankId == bloodBankId)
-                .ToListAsync();
+            var query = _context.Appointments
+                .AsNoTracking()
+                .Include(a => a.BloodBank)
+                .Include(a => a.Donor).ThenInclude(d => d.User)
+                .Include(a => a.Donor).ThenInclude(d => d.BloodType)
+                .Where(a => a.BloodBankId == bloodBankId);
+
+            if (date.HasValue)
+            {
+                var start = date.Value.Date;
+                var end = start.AddDays(1);
+                query = query.Where(a => a.AppointmentDate >= start && a.AppointmentDate < end);
+            }
+
+            return await query.OrderBy(a => a.AppointmentDate).ToListAsync();
         }
 
         public async Task<Appointment?> GetByIdAsync(Guid id)
         {
             return await _context.Appointments
                 .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<bool> SlotTakenAsync(Guid bloodBankId, DateTime appointmentDate, string excludedStatus)
+        {
+            return await _context.Appointments.AnyAsync(a =>
+                a.BloodBankId == bloodBankId &&
+                a.AppointmentDate == appointmentDate &&
+                a.Status != excludedStatus);
+        }
+
+        public async Task<Donor?> GetDonorByUserIdAsync(Guid userId)
+        {
+            return await _context.Donors
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.UserId == userId);
+        }
+
+        public async Task<bool> DonorHasActiveAppointmentAsync(Guid donorId, DateTime from, string[] activeStatuses)
+        {
+            return await _context.Appointments.AnyAsync(a =>
+                a.DonorId == donorId &&
+                a.AppointmentDate >= from &&
+                activeStatuses.Contains(a.Status));
         }
 
         public async Task AddAsync(Appointment appointment)

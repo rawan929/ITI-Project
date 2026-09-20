@@ -1,8 +1,28 @@
 ﻿@model IEnumerable<ITI.BLL.ViewModel.AppointmentVM>
-
+@using ITI.BLL.Constants
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Appointments";
+}
+@{
+    var dateValue = ((DateTime)ViewBag.Date).ToString("yyyy-MM-dd");
+}
+
+@functions {
+    static string BadgeClass(string status) => status switch
+    {
+        AppointmentStatuses.Scheduled => "bg-amber-50 text-amber-600 border-amber-200",
+        AppointmentStatuses.Confirmed => "bg-emerald-50 text-emerald-600 border-emerald-200",
+        AppointmentStatuses.Completed => "bg-sky-50 text-sky-600 border-sky-200",
+        _ => "bg-slate-100 text-slate-500 border-slate-200"
+    };
+
+    static (string Status, string Label)[] ActionsFor(string status) => status switch
+    {
+        AppointmentStatuses.Scheduled => new[] { (AppointmentStatuses.Confirmed, "Confirm"), (AppointmentStatuses.Cancelled, "Cancel") },
+        AppointmentStatuses.Confirmed => new[] { (AppointmentStatuses.Completed, "Complete"), (AppointmentStatuses.NoShow, "No Show"), (AppointmentStatuses.Cancelled, "Cancel") },
+        _ => Array.Empty<(string, string)>()
+    };
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -33,21 +53,34 @@
                 <h1 class="text-2xl font-bold tracking-tight font-serif">Scheduled <span class="text-rose-brand">Appointments</span></h1>
             </div>
         </div>
-        <a asp-action="Create" class="px-5 py-2.5 bg-rose-brand text-white font-semibold text-sm rounded-xl shadow-lg shadow-rose-900/20 hover:opacity-90 transition flex items-center gap-2">
-            <i class="fa-solid fa-plus"></i> New Appointment
-        </a>
     </div>
 </div>
 
 <div class="max-w-7xl mx-auto">
+    @if (TempData["Error"] is string errorMessage)
+    {
+        <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-medium">@errorMessage</div>
+    }
+
+    <div class="flex items-center justify-between mb-4">
+        <form method="get" asp-action="Index" class="flex items-center gap-3">
+            <input type="hidden" name="bloodBankId" value="@ViewBag.BloodBankId" />
+            <input type="date" name="date" value="@dateValue" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-800" />
+            <button type="submit" class="px-4 py-2 bg-slate-100 text-slate-600 font-semibold rounded-xl hover:bg-slate-200 transition">Show</button>
+        </form>
+        <span class="text-sm font-semibold text-rose-brand">@(Model?.Count() ?? 0) appointments</span>
+    </div>
+
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase text-slate-400">
                     <tr>
-                        <th class="px-6 py-4">Donor Name</th>
-                        <th class="px-6 py-4">Appointment Date</th>
+                        <th class="px-6 py-4">Time</th>
+                        <th class="px-6 py-4">Donor</th>
+                        <th class="px-6 py-4">Blood Type</th>
                         <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-slate-700">
@@ -56,12 +89,30 @@
                         @foreach (var item in Model)
                         {
                             <tr class="hover:bg-slate-50/50 transition">
+                                <td class="px-6 py-4">@item.AppointmentDate.ToString("hh:mm tt")</td>
                                 <td class="px-6 py-4 font-semibold text-slate-900">@(string.IsNullOrEmpty(item.DonorName) ? "N/A" : item.DonorName)</td>
-                                <td class="px-6 py-4">@item.AppointmentDate.ToString("yyyy-MM-dd hh:mm tt")</td>
+                                <td class="px-6 py-4">@(item.BloodType ?? "-")</td>
                                 <td class="px-6 py-4">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                                        @item.Status
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border @BadgeClass(item.Status)">
+                                        @AppointmentStatuses.Display(item.Status)
                                     </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex gap-2">
+                                        @foreach (var action in ActionsFor(item.Status))
+                                        {
+                                            <form asp-action="ChangeStatus" method="post">
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="bloodBankId" value="@ViewBag.BloodBankId" />
+                                                <input type="hidden" name="status" value="@action.Status" />
+                                                <input type="hidden" name="date" value="@dateValue" />
+                                                <button type="submit"
+                                                        class="px-3 py-1 border rounded-lg text-xs font-semibold @(action.Status == AppointmentStatuses.Confirmed || action.Status == AppointmentStatuses.Completed ? "border-rose-300 text-rose-700" : "border-slate-300 text-slate-500")">
+                                                    @action.Label
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -69,7 +120,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="3" class="px-6 py-8 text-center text-slate-400 font-medium">No appointments scheduled yet.</td>
+                            <td colspan="5" class="px-6 py-8 text-center text-slate-400 font-medium">No appointments for this day.</td>
                         </tr>
                     }
                 </tbody>

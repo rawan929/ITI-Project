@@ -9,6 +9,8 @@ namespace ITI.DAL.Repo.Interface
     {
         Task<IEnumerable<Donation>> GetByDonorIdAsync(Guid donorId);
         Task<IEnumerable<Donation>> GetByBankIdAsync(Guid bloodBankId);
+        Task<bool> DonorExistsAsync(Guid donorId);
+        Task<bool> ProcessAsync(Guid donationId, Guid bloodBankId, string fromStatus, string toStatus);
         Task AddAsync(Donation donation);
         Task<bool> SaveChangesAsync();
     }

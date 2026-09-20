@@ -10,7 +10,7 @@ namespace ITI.DAL.Repo.Implementation
 {
     public class BloodInventoryRepo : IBloodInventoryRepo
     {
-        private readonly AppDbcontext _context; // أصلحي اسم DbContext حسب ما زميلتك سمّته
+        private readonly AppDbcontext _context; 
 
         public BloodInventoryRepo(AppDbcontext context)
         {
@@ -31,6 +31,13 @@ namespace ITI.DAL.Repo.Implementation
                 .FirstOrDefaultAsync(i => i.BloodBankId == bloodBankId && i.BloodTypeId == bloodTypeId);
         }
 
+        public async Task<List<BloodType>> GetAllBloodTypesAsync()
+        {
+            return await _context.BloodTypes
+                .AsNoTracking()
+                .OrderBy(b => b.Id)
+                .ToListAsync();
+        }
         public async Task AddAsync(BloodInventory inventory)
         {
             await _context.BloodInventories.AddAsync(inventory);

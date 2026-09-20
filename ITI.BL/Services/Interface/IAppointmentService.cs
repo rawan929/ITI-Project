@@ -9,8 +9,13 @@ namespace ITI.BLL.Services.Interface
     public interface IAppointmentService
     {
         Task<IEnumerable<AppointmentVM>> GetAppointmentsByDonorAsync(Guid donorId);
-        Task<IEnumerable<AppointmentVM>> GetAppointmentsByBankAsync(Guid bloodBankId);
         Task<bool> CreateAppointmentAsync(CreateAppointmentVM model);
         Task<bool> UpdateAppointmentStatusAsync(Guid appointmentId, string status);
+        Task<IEnumerable<AppointmentVM>> GetAppointmentsByBankAsync(Guid bloodBankId, DateTime? date = null);
+
+        // جديد
+        Task<List<AppointmentItem>> GetDonorAppointments(Guid donorId);   
+        Task<(bool Success, string? Error)> BookAppointmentAsync(Guid userId, Guid bloodBankId, DateTime appointmentDate);
+        Task<(bool Success, string? Error)> ChangeStatusAsync(Guid appointmentId, Guid bloodBankId, string newStatus);
     }
 }
