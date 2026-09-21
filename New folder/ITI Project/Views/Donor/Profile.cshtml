@@ -1,0 +1,183 @@
+﻿@model ITI.BLL.ViewModel.Donor.DonorProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<style>
+    .profile-page-header {
+        background: #0f1420;
+        color: #fff;
+        padding: 30px 40px;
+    }
+
+    .profile-page-header h3 {
+        font-family: Georgia, serif;
+        margin-bottom: 4px;
+    }
+
+    .profile-page-header p {
+        color: #b7bac2;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .profile-form-container {
+        padding: 30px 40px;
+        background: #f5f6f8;
+        min-height: 60vh;
+    }
+
+    .profile-card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 30px;
+        border: 1px solid #eaeaea;
+        max-width: 700px;
+    }
+
+    .profile-card .form-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #444;
+        text-transform: uppercase;
+    }
+
+    .profile-card .form-control,
+    .profile-card .form-select {
+        border-radius: 8px;
+        padding: 10px 14px;
+        border: 1px solid #dcdde1;
+    }
+
+    .profile-card .form-control:disabled {
+        background: #f0f0f0;
+        color: #888;
+    }
+
+    .btn-save {
+        background: #b3122b;
+        border-color: #b3122b;
+        color: #fff;
+        font-weight: 700;
+        padding: 10px 28px;
+        border-radius: 8px;
+    }
+
+    .btn-save:hover {
+        background: #8f0e22;
+        color: #fff;
+    }
+
+    .change-password-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #b3122b;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .change-password-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="profile-page-header d-flex justify-content-between align-items-center flex-wrap">
+    <div>
+        <h3>My Profile</h3>
+        <p>Update your personal and medical information</p>
+    </div>
+    <a asp-action="Dashboard" asp-controller="Donor"
+       class="btn btn-sm"
+       style="background:#fff;color:#0f1420;font-weight:600;border-radius:6px;padding:8px 16px;">
+        ← Back to Dashboard
+    </a>
+</div>
+
+<div class="profile-form-container">
+    <div class="profile-card">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <form asp-action="Profile" asp-controller="Donor" method="post">
+
+            <div class="row g-3 mb-1">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input asp-for="FullName" class="form-control" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email Address</label>
+                    <input asp-for="Email" class="form-control" disabled />
+                    <small class="text-muted">Email cannot be changed currently. Contact support if needed.</small>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-1 mt-1">
+                <div class="col-md-6">
+                    <label class="form-label">Phone Number</label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">City</label>
+                    <input asp-for="City" class="form-control" />
+                    <span asp-validation-for="City" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <h6 class="mb-3">Medical Information</h6>
+
+            <div class="row g-3 mb-1">
+                <div class="col-md-6">
+                    <label class="form-label">Blood Type</label>
+                    <select asp-for="BloodTypeId" class="form-select">
+                        <option value="">-- Select Blood Type --</option>
+                        @foreach (var bt in Model.AvailableBloodTypes)
+                        {
+                            <option value="@bt.Id">@bt.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="BloodTypeId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Date of Birth</label>
+                    <input asp-for="DateOfBirth" type="date" class="form-control" />
+                    <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-1 mt-1">
+                <div class="col-md-6">
+                    <label class="form-label">Gender</label>
+                    <select asp-for="Gender" class="form-select">
+                        <option value="">-- Select Gender --</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a asp-action="ChangePassword" asp-controller="Donor" class="change-password-link">
+                    Change Password
+                </a>
+                <button type="submit" class="btn btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

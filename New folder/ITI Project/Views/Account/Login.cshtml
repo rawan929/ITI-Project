@@ -1,0 +1,105 @@
+﻿@model ITI.BLL.ViewModel.Account.LoginViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Sign In - BloodLink+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/auth.css" />
+</head>
+<body class="auth-body">
+    <div class="auth-wrapper">
+
+
+        <!-- العمود الشمال -->
+        <div class="auth-hero">
+            <div>
+                <div class="auth-logo">
+                    <span class="auth-logo-icon">🩸</span>
+                    <span>BloodLink<span style="color:var(--brand-red)">+</span></span>
+                </div>
+
+                <h1>Welcome Back.</h1>
+                <p class="subtitle">Sign in to manage your donations, requests, and appointments — all in one place.</p>
+
+                <div class="auth-stats">
+                    <div class="auth-stat">
+                        <div class="number">14,737</div>
+                        <div class="label">Registered Donors</div>
+                    </div>
+                    <div class="auth-stat">
+                        <div class="number">48,200+</div>
+                        <div class="label">Lives Saved</div>
+                    </div>
+                    <div class="auth-stat">
+                        <div class="number">217</div>
+                        <div class="label">Blood Banks</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-emergency">
+                🔴 24/7 Emergency line — <strong>1-800-BLOOD</strong>
+            </div>
+        </div>
+
+
+        <!-- العمود اليمين -->
+        <div class="auth-form-side">
+            <div class="auth-form-container">
+                <h2>Sign In</h2>
+                <p class="switch-link">Don't have an account? <a asp-action="Register">Register</a></p>
+
+                <form asp-action="Login" asp-controller="Account" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input asp-for="Email" class="form-control" placeholder="you@example.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Password</label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small">Remember me for 30 days</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-brand">Sign In</button>
+                </form>
+
+                @* <div class="divider-text">or continue as</div>
+
+                <div class="social-role-options">
+                    <div class="role-card" onclick="location.href='@Url.Action("Register", "Account")?role=Donor'">
+                        <div class="icon">🩸</div>
+                        <div class="title">Donor</div>
+                    </div>
+                    <div class="role-card" onclick="location.href='@Url.Action("Register", "Account")?role=Hospital'">
+                        <div class="icon">🏥</div>
+                        <div class="title">Hospital</div>
+                    </div>
+                    <div class="role-card" onclick="location.href='@Url.Action("Register", "Account")?role=BloodBank'">
+                        <div class="icon">🏦</div>
+                        <div class="title">Blood Bank</div>
+                    </div>
+                </div> *@
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

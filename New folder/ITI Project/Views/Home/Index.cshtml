@@ -1,0 +1,258 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- Tailwind CSS (this page's classes rely on it) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = { corePlugins: { preflight: false } }
+</script>
+
+<!-- Hero -->
+<section class="relative min-h-screen flex items-center overflow-hidden bg-[#0D1B2A] -mt-4">
+    <div class="absolute inset-0">
+        <img src="https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=1600&h=900&fit=crop&auto=format"
+             alt="Blood donation" class="w-full h-full object-cover opacity-20" />
+        <div class="absolute inset-0 bg-gradient-to-r from-[#0D1B2A] via-[#0D1B2A]/90 to-transparent"></div>
+    </div>
+
+    <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#C41230]"></div>
+
+    <!-- Login / Register buttons -->
+   
+    
+        <div class="absolute top-6 right-6 sm:right-10 z-20 flex items-center gap-3">
+            <a asp-controller="Account" asp-action="Login"
+               class="px-6 py-2.5 text-white font-semibold text-sm rounded-full border border-white/40 hover:bg-white/10 transition-colors">
+                Login
+            </a>
+            <a asp-controller="Account" asp-action="Register"
+               class="px-6 py-2.5 bg-[#C41230] text-white font-semibold text-sm rounded-full hover:bg-[#A30E28] transition-colors shadow-lg">
+                Register
+            </a>
+        </div>
+    
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <div class="max-w-2xl">
+            <div class="inline-flex items-center gap-2 bg-[#C41230]/20 border border-[#C41230]/30 rounded-full px-4 py-1.5 mb-8">
+                <span class="w-2 h-2 rounded-full bg-[#C41230] animate-pulse"></span>
+                <span class="text-sm text-red-300 font-medium">3 emergency requests in your area</span>
+            </div>
+
+            <h1 class="font-serif text-5xl sm:text-6xl lg:text-7xl text-white leading-[1.05] mb-6">
+                Donate Blood,<br />
+                <span class="text-[#C41230]">Save Lives.</span>
+            </h1>
+
+            <p class="text-lg text-gray-300 leading-relaxed mb-10 max-w-xl">
+                Every two seconds someone needs blood. BloodLink+ connects willing donors with patients in need — in real time, every day.
+            </p>
+
+            @* <div class="flex flex-col sm:flex-row gap-4">
+                <a href="#find-donors" class="px-8 py-3.5 bg-white text-[#0D1B2A] font-semibold rounded-xl hover:bg-gray-100 transition-colors shadow-lg text-sm text-center">
+                    Find a Blood Donor
+                </a>
+                <a href="#request-blood" class="px-8 py-3.5 bg-[#C41230] text-white font-semibold rounded-xl hover:bg-[#A30E28] transition-colors shadow-lg text-sm text-center">
+                    Request Blood Now
+                </a>
+            </div> *@
+
+            <div class="flex flex-wrap gap-8 mt-14">
+                <div>
+                    <div class="text-2xl font-bold text-white">14,737</div>
+                    <div class="text-xs text-gray-400 mt-0.5">Registered Donors</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-white">892</div>
+                    <div class="text-xs text-gray-400 mt-0.5">Partner Hospitals</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-white">48,200+</div>
+                    <div class="text-xs text-gray-400 mt-0.5">Lives Saved</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-500">
+        <span class="text-xs">Scroll down</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12l7 7 7-7" />
+        </svg>
+    </div>
+</section>
+
+<!-- Blood Type Cards -->
+<section id="find-donors" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+            <div>
+                <p class="text-[#C41230] font-semibold text-sm uppercase tracking-widest mb-3">Blood Types</p>
+                <h2 class="font-serif text-4xl text-[#0D1B2A]">Current Donor Availability</h2>
+            </div>
+            <a asp-controller="Admin" asp-action="Users" class="text-sm font-semibold text-[#C41230] hover:text-[#A30E28] flex items-center gap-1.5 transition-colors">
+                View all donors
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+            @{
+                var bloodTypes = new[]
+                {
+                    new { Type = "A+", Donors = 3241, Color = "bg-red-50 border-red-200 hover:border-[#C41230]", Text = "text-red-700" },
+                    new { Type = "A-", Donors = 892,  Color = "bg-red-50 border-red-200 hover:border-[#C41230]", Text = "text-red-700" },
+                    new { Type = "B+", Donors = 2107, Color = "bg-blue-50 border-blue-200 hover:border-blue-500", Text = "text-blue-700" },
+                    new { Type = "B-", Donors = 614,  Color = "bg-blue-50 border-blue-200 hover:border-blue-500", Text = "text-blue-700" },
+                    new { Type = "AB+", Donors = 1543, Color = "bg-emerald-50 border-emerald-200 hover:border-emerald-500", Text = "text-emerald-700" },
+                    new { Type = "AB-", Donors = 321,  Color = "bg-emerald-50 border-emerald-200 hover:border-emerald-500", Text = "text-emerald-700" },
+                    new { Type = "O+", Donors = 4892, Color = "bg-amber-50 border-amber-200 hover:border-amber-500", Text = "text-amber-700" },
+                    new { Type = "O-", Donors = 1127, Color = "bg-amber-50 border-amber-200 hover:border-amber-500", Text = "text-amber-700" },
+                };
+            }
+            @foreach (var bt in bloodTypes)
+            {
+                <div class="@bt.Color border rounded-2xl p-4 text-center transition-all hover:shadow-md hover:-translate-y-0.5">
+                    <div class="font-serif text-3xl @bt.Text mb-1">@bt.Type</div>
+                    <div class="text-xs font-mono text-gray-500">@bt.Donors.ToString("N0")</div>
+                    <div class="text-[10px] text-gray-400 mt-0.5">donors</div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- How it works -->
+<section class="py-20 bg-[#F5F6F8]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-14">
+            <p class="text-[#C41230] font-semibold text-sm uppercase tracking-widest mb-3">Process</p>
+            <h2 class="font-serif text-4xl text-[#0D1B2A]">How BloodLink+ Works</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            @{
+                var steps = new[]
+                {
+                    new { Number = "01", Title = "Register as a Donor", Description = "Create your profile with your blood type, location, and availability. Takes under 3 minutes." },
+                    new { Number = "02", Title = "Get Matched", Description = "Our system matches you with hospitals and patients who need your exact blood type nearby." },
+                    new { Number = "03", Title = "Schedule & Donate", Description = "Book an appointment at your nearest center and donate. Each donation can save up to 3 lives." },
+                    new { Number = "04", Title = "Track Your Impact", Description = "Receive updates on your donation's journey and see the difference your generosity makes." },
+                };
+            }
+            @foreach (var step in steps)
+            {
+                <div class="relative bg-white rounded-2xl p-6 border border-[#E8E2E4] hover:border-[#C41230]/30 hover:shadow-md transition-all">
+                    <div class="font-mono text-4xl font-bold text-[#C41230]/20 mb-4">@step.Number</div>
+                    <h3 class="font-semibold text-[#0D1B2A] text-base mb-2">@step.Title</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">@step.Description</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Stats -->
+<section class="py-20 bg-[#C41230]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="font-serif text-5xl text-white mb-2">14,737</div>
+                <div class="text-sm text-red-200 font-medium">Registered Donors</div>
+            </div>
+            <div class="text-center">
+                <div class="font-serif text-5xl text-white mb-2">892</div>
+                <div class="text-sm text-red-200 font-medium">Partner Hospitals</div>
+            </div>
+            <div class="text-center">
+                <div class="font-serif text-5xl text-white mb-2">48,200+</div>
+                <div class="text-sm text-red-200 font-medium">Lives Saved</div>
+            </div>
+            <div class="text-center">
+                <div class="font-serif text-5xl text-white mb-2">217</div>
+                <div class="text-sm text-red-200 font-medium">Blood Banks</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Emergency Requests -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+                <div class="inline-flex items-center gap-2 mb-3">
+                    <span class="w-2 h-2 rounded-full bg-[#C41230] animate-pulse"></span>
+                    <span class="text-[#C41230] font-semibold text-sm uppercase tracking-widest">Live</span>
+                </div>
+                <h2 class="font-serif text-4xl text-[#0D1B2A]">Emergency Blood Requests</h2>
+            </div>
+            <a href="#request-blood" class="text-sm font-semibold bg-[#FFF0F3] text-[#C41230] px-5 py-2.5 rounded-xl hover:bg-[#FFDDE4] transition-colors">
+                View All Requests
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            @{
+                var requests = new[]
+                {
+                    new { Hospital = "City General Hospital", Blood = "O-", Units = 4, Urgency = "Critical", Time = "2 hours ago", Location = "Downtown, 1.2 km" },
+                    new { Hospital = "St. Mary Medical Center", Blood = "AB+", Units = 2, Urgency = "Urgent", Time = "45 min ago", Location = "Midtown, 3.7 km" },
+                    new { Hospital = "Riverside Trauma Center", Blood = "B-", Units = 6, Urgency = "Critical", Time = "12 min ago", Location = "Eastside, 5.1 km" },
+                };
+            }
+            @foreach (var req in requests)
+            {
+                <div class="border border-[#E8E2E4] rounded-2xl p-5 hover:border-[#C41230]/40 hover:shadow-md transition-all">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full @(req.Urgency == "Critical" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700")">
+                                @req.Urgency
+                            </span>
+                            <div class="font-semibold text-[#0D1B2A] text-sm mt-1">@req.Hospital</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-serif text-2xl text-[#C41230]">@req.Blood</div>
+                            <div class="text-xs text-gray-400">@req.Units units needed</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span class="flex items-center gap-1">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
+                            </svg>
+                            @req.Location
+                        </span>
+                        <span>@req.Time</span>
+                    </div>
+                    <a asp-controller="Donor" asp-action="Dashboard" class="block text-center w-full mt-4 py-2 text-sm font-semibold text-[#C41230] border border-[#C41230] rounded-xl hover:bg-[#C41230] hover:text-white transition-colors">
+                        Respond to Request
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- CTA Banner -->
+<section class="py-20 bg-[#0D1B2A]">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="font-serif text-4xl sm:text-5xl text-white mb-5">
+            Ready to Make a Difference?
+        </h2>
+        <p class="text-gray-400 mb-10 leading-relaxed">
+            Join 14,000+ registered donors. Your next donation could save up to three lives.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a asp-controller="Account" asp-action="Register" class="px-8 py-3.5 bg-[#C41230] text-white font-semibold rounded-xl hover:bg-[#A30E28] transition-colors text-sm">
+                Register as Donor
+            </a>
+            <a href="#find-donors" class="px-8 py-3.5 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-colors text-sm border border-white/20">
+                Find a Donor Near You
+            </a>
+        </div>
+    </div>
+</section>
