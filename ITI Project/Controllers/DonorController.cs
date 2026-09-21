@@ -3,7 +3,6 @@ using ITI.BLL.ViewModel.Donor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -40,41 +39,7 @@ namespace ITI.PL.Controllers
             return View(dashboardData);
         }
 
-        // ===== Find Requests (جديد) =====
-        [HttpGet]
-        public async Task<IActionResult> FindRequests(string? urgency)
-        {
-            var userId = GetCurrentUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
-
-            var requests = await _donorService.GetFindRequestsData(userId.Value, urgency);
-            var bloodTypeName = await _donorService.GetDonorBloodTypeName(userId.Value);
-
-            ViewBag.Header = await _donorService.GetHeaderData(userId.Value, "FindRequests");
-            ViewBag.BloodTypeName = bloodTypeName;
-            ViewBag.SelectedUrgency = urgency ?? "All";
-
-            return View(requests);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RespondToRequest(Guid requestId)
-        {
-            var userId = GetCurrentUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
-
-            var result = await _donorService.RespondToRequest(userId.Value, requestId);
-
-            if (result.Succeeded)
-                TempData["SuccessMessage"] = "Your response has been submitted. Thank you for helping!";
-            else
-                TempData["ErrorMessage"] = result.Errors.FirstOrDefault() ?? "Something went wrong.";
-
-            return RedirectToAction("FindRequests");
-        }
-
-        // ===== Profile (View-only) =====
+        // ===== Profile =====
         [HttpGet]
         public async Task<IActionResult> Profile()
         {

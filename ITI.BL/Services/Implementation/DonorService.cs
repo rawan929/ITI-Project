@@ -5,7 +5,6 @@ using ITI.DAL.Repo.Interface;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ITI.BLL.Services.Implementation
@@ -14,21 +13,14 @@ namespace ITI.BLL.Services.Implementation
     {
         private readonly IDonorRepo _donorRepo;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IBloodRequestService _bloodRequestService;
-        private readonly IDonationRequestService _donationRequestService;
 
-        public DonorService(
-            IDonorRepo donorRepo,
-            UserManager<ApplicationUser> userManager,
-            IBloodRequestService bloodRequestService,
-            IDonationRequestService donationRequestService)
+        public DonorService(IDonorRepo donorRepo, UserManager<ApplicationUser> userManager)
         {
             _donorRepo = donorRepo;
             _userManager = userManager;
-            _bloodRequestService = bloodRequestService;
-            _donationRequestService = donationRequestService;
         }
 
+        
         private (bool isEligible, DateTime? nextEligible, int? daysLeft) CalculateEligibility(DateTime? lastDonationDate)
         {
             if (!lastDonationDate.HasValue)
@@ -52,28 +44,6 @@ namespace ITI.BLL.Services.Implementation
 
             var (isEligible, nextEligible, daysLeft) = CalculateEligibility(lastDonationDate);
 
-            
-            var nearbyRequests = new List<NearbyRequestItemViewModel>();
-            try
-            {
-                var requests = await _bloodRequestService.GetActiveRequestsAsync(donor.User.City, donor.BloodTypeId);
-                nearbyRequests = requests
-                    .Take(3)
-                    .Select(r => new NearbyRequestItemViewModel
-                    {
-                        Id = r.Id,
-                        HospitalName = r.Hospital?.Name ?? "Unknown Hospital",
-                        BloodTypeName = r.BloodType?.Name ?? "N/A",
-                        UnitsRequired = r.UnitsRequired,
-                        Urgency = r.Urgency,
-                        Status = r.Status
-                    }).ToList();
-            }
-            catch
-            {
-                nearbyRequests = new List<NearbyRequestItemViewModel>();
-            }
-
             return new DonorDashboardViewModel
             {
                 FullName = donor.User.FullName,
@@ -83,8 +53,7 @@ namespace ITI.BLL.Services.Implementation
                 TotalDonations = donor.Donations.Count,
                 LastDonationDate = lastDonationDate,
                 NextEligibleDate = nextEligible,
-                DaysUntilEligible = daysLeft,
-                NearbyRequests = nearbyRequests
+                DaysUntilEligible = daysLeft
             };
         }
 
@@ -205,56 +174,6 @@ namespace ITI.BLL.Services.Implementation
             }
 
             return new AuthResult { Succeeded = true };
-        }
-
-
-        public async Task<List<NearbyRequestItemViewModel>> GetFindRequestsData(Guid userId, string? urgencyFilter)
-        {
-            var donor = await _donorRepo.GetByUserIdWithDetailsAsync(userId);
-            if (donor == null) return new List<NearbyRequestItemViewModel>();
-
-            var requests = await _bloodRequestService.GetActiveRequestsAsync(donor.User.City, donor.BloodTypeId);
-
-            var list = requests.Select(r => new NearbyRequestItemViewModel
-            {
-                Id = r.Id,
-                HospitalName = r.Hospital?.Name ?? "Unknown Hospital",
-                BloodTypeName = r.BloodType?.Name ?? "N/A",
-                UnitsRequired = r.UnitsRequired,
-                Urgency = r.Urgency,
-                Status = r.Status
-            });
-
-            if (!string.IsNullOrEmpty(urgencyFilter) && urgencyFilter != "All")
-            {
-                list = list.Where(r => r.Urgency.Equals(urgencyFilter, StringComparison.OrdinalIgnoreCase));
-            }
-
-            return list.ToList();
-        }
-
-        public async Task<AuthResult> RespondToRequest(Guid userId, Guid requestId)
-        {
-            var donor = await _donorRepo.GetByUserIdWithDetailsAsync(userId);
-            if (donor == null)
-            {
-                return new AuthResult { Succeeded = false, Errors = new[] { "Donor not found" } };
-            }
-
-            var success = await _donationRequestService.RespondToRequestAsync(donor.Id, requestId);
-
-            if (!success)
-            {
-                return new AuthResult { Succeeded = false, Errors = new[] { "Could not respond to this request. It may no longer be active." } };
-            }
-
-            return new AuthResult { Succeeded = true };
-        }
-
-        public async Task<string> GetDonorBloodTypeName(Guid userId)
-        {
-            var donor = await _donorRepo.GetByUserIdWithDetailsAsync(userId);
-            return donor?.BloodType?.Name ?? "your blood type";
         }
     }
 }

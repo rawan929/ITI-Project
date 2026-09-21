@@ -14,7 +14,5 @@ namespace ITI.BLL.ViewModel.Donor
         public DateTime? LastDonationDate { get; set; }
         public DateTime? NextEligibleDate { get; set; }
         public int? DaysUntilEligible { get; set; }
-
-        public List<NearbyRequestItemViewModel> NearbyRequests { get; set; } = new();
     }
 }
