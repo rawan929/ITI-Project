@@ -12,13 +12,15 @@ namespace ITI.BLL.Services.Implementation
     public class DonorMatchingService : IDonorMatchingService
     {
         private readonly IDonorMatchingRepo _matchingRepo;
+        private readonly IBloodBankRepo _bloodBankRepo;
 
         /// <summary>Same interval DonorService and BloodBankService use, so all three agree.</summary>
         private const int DonationIntervalDays = 90;
 
-        public DonorMatchingService(IDonorMatchingRepo matchingRepo)
+        public DonorMatchingService(IDonorMatchingRepo matchingRepo, IBloodBankRepo bloodBankRepo)
         {
             _matchingRepo = matchingRepo;
+            _bloodBankRepo = bloodBankRepo;
         }
 
         public async Task<MatchingResultVM?> FindMatchingDonorsAsync(Guid bloodRequestId)
@@ -41,6 +43,16 @@ namespace ITI.BLL.Services.Implementation
 
             var today = DateTime.UtcNow.Date;
 
+            // The blood bank donors will be sent to: nearest approved bank to the
+            // hospital's city, or any approved bank if none exist there yet.
+            var suggestedBanks = await _bloodBankRepo.GetApprovedBloodBanksAsync(hospitalCity);
+            var suggestedBank = suggestedBanks.FirstOrDefault();
+            if (suggestedBank == null)
+            {
+                var anyApproved = await _bloodBankRepo.GetApprovedBloodBanksAsync(null);
+                suggestedBank = anyApproved.FirstOrDefault();
+            }
+
             var donors = candidates
                 // 3. Eligibility — 90 days since the last donation.
                 .Where(d => IsEligible(d, today))
@@ -62,7 +74,10 @@ namespace ITI.BLL.Services.Implementation
                     IsSameCity = !string.IsNullOrWhiteSpace(hospitalCity)
                                  && string.Equals(d.User?.City, hospitalCity, StringComparison.OrdinalIgnoreCase),
 
-                    AlreadyContacted = alreadyContacted.Contains(d.Id)
+                    AlreadyContacted = alreadyContacted.Contains(d.Id),
+
+                    SuggestedBloodBankId = suggestedBank?.Id,
+                    SuggestedBloodBankName = suggestedBank?.Name ?? string.Empty
                 })
                 // 6. Sort — nearest first, then the exact blood type, then whoever
                 //    has donated least recently so the load spreads out.

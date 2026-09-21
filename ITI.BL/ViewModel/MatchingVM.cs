@@ -17,6 +17,9 @@ namespace ITI.BLL.ViewModel
 
         /// <summary>The donor turned this request down.</summary>
         public const string Declined = "Declined";
+
+        /// <summary>The donor accepted and booked an appointment slot.</summary>
+        public const string Scheduled = "Scheduled";
     }
 
     public class MatchedDonorVM
@@ -34,6 +37,10 @@ namespace ITI.BLL.ViewModel
 
         /// <summary>Already invited or already responded to this request.</summary>
         public bool AlreadyContacted { get; set; }
+
+        /// <summary>The blood bank suggested to host this donation, if one was found.</summary>
+        public Guid? SuggestedBloodBankId { get; set; }
+        public string SuggestedBloodBankName { get; set; } = string.Empty;
     }
 
     public class MatchingResultVM
@@ -77,8 +84,17 @@ namespace ITI.BLL.ViewModel
         public string RequestStatus { get; set; } = string.Empty;
         public string ResponseStatus { get; set; } = string.Empty;
 
+        public Guid? BloodBankId { get; set; }
+        public string BloodBankName { get; set; } = string.Empty;
+        public string BloodBankCity { get; set; } = string.Empty;
+        public DateTime? AppointmentDate { get; set; }
+
         public bool IsAwaitingReply =>
             ResponseStatus == DonationRequestStatus.Invited && RequestStatus == "Pending";
+
+        /// <summary>Accepted, but hasn't picked an appointment slot yet.</summary>
+        public bool NeedsScheduling =>
+            ResponseStatus == DonationRequestStatus.Accepted && AppointmentDate == null;
     }
 
     public enum RespondToInvitationResult
@@ -88,5 +104,16 @@ namespace ITI.BLL.ViewModel
         NotYours,
         AlreadyAnswered,
         RequestClosed
+    }
+
+    public enum ScheduleAppointmentResult
+    {
+        Success,
+        NotFound,
+        NotYours,
+        NotAccepted,
+        AlreadyScheduled,
+        NoBloodBankAssigned,
+        DateInThePast
     }
 }

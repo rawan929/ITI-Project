@@ -7,6 +7,7 @@ using ITI.DAL.Repo.Interface;
 using ITI_Project.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace ITI_Project
 {
@@ -14,6 +15,15 @@ namespace ITI_Project
     {
         public static async Task Main(string[] args)
         {
+            // Force an invariant culture for every request thread. Without this, on a
+            // server/dev machine whose OS/browser locale is Arabic (dd/MM/yyyy, etc.),
+            // the default MVC model binder can fail to parse the ISO 8601 strings that
+            // <input type="datetime-local"> sends (e.g. "2026-09-22T09:00"), which makes
+            // ModelState invalid and silently kicks the user back to the same form —
+            // exactly what looked like "Confirm Appointment does nothing".
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.

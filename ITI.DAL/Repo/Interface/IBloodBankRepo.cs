@@ -34,7 +34,7 @@ namespace ITI.DAL.Repo.Interface
         Task<Donor?> GetDonorByIdAsync(Guid donorId);
         Task<Donor?> GetDonorByUserIdAsync(Guid userId);
         Task<List<Appointment>> GetAppointmentsByDonorAsync(Guid donorId);
-        Task<List<Donor>> GetDonorsByCityAsync(string city);
+        Task<List<Donor>> GetDonorsByCityAsync(string? city);
 
         // ---- Hospital blood requests the bank can fulfil ----
         Task<List<BloodRequest>> GetPendingRequestsAsync(string? city);

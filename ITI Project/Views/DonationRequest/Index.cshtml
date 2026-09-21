@@ -104,8 +104,13 @@
 
                                 @switch (item.ResponseStatus)
                                 {
+                                    case "Scheduled":
+                                        <span class="badge rounded-pill bg-success bg-opacity-25 text-success-emphasis">
+                                            ✔ Scheduled @item.AppointmentDate?.ToString("dd MMM, h:mm tt") · @item.BloodBankName
+                                        </span>
+                                        break;
                                     case "Accepted":
-                                        <span class="badge rounded-pill bg-success bg-opacity-25 text-success-emphasis">✔ You accepted</span>
+                                        <span class="badge rounded-pill bg-warning bg-opacity-25 text-warning-emphasis">Accepted — pick a time</span>
                                         break;
                                     case "Declined":
                                         <span class="badge rounded-pill bg-light text-muted">You declined</span>
@@ -135,6 +140,12 @@
                                         <button type="submit" class="btn btn-sm btn-outline-secondary">Decline</button>
                                     </form>
                                 </div>
+                            }
+                            else if (item.NeedsScheduling)
+                            {
+                                <a asp-action="Schedule" asp-route-id="@item.DonationRequestId" class="btn btn-sm btn-brand">
+                                    Book Appointment
+                                </a>
                             }
                         </div>
                     </div>

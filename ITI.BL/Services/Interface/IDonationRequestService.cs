@@ -20,5 +20,11 @@ namespace ITI.BLL.Services.Interface
         Task<List<DonorResponseViewModel>> GetResponsesForRequestAsync(Guid requestId);
 
         Task<List<DonorResponseHistoryVM>> GetDonorResponseHistoryAsync(Guid donorId);
+
+        /// <summary>Approved blood banks a donor can choose from for a donation request, same-city ones first.</summary>
+        Task<List<BloodBankOptionVM>> GetAvailableBloodBanksAsync(Guid donationRequestId);
+
+        /// <summary>Books the appointment for an accepted invitation at the donor's chosen blood bank.</summary>
+        Task<ScheduleAppointmentResult> ScheduleAppointmentAsync(Guid donorId, Guid donationRequestId, Guid bloodBankId, DateTime appointmentDate);
     }
 }

@@ -76,6 +76,8 @@ namespace ITI.DAL.Repo.Implementation
                     .ThenInclude(br => br.Hospital)
                 .Include(dr => dr.BloodRequest)
                     .ThenInclude(br => br.BloodType)
+                .Include(dr => dr.BloodBank)
+                .Include(dr => dr.Appointment)
                 .Where(dr => dr.DonorId == donorId)
                 .ToListAsync();
         }
@@ -84,6 +86,10 @@ namespace ITI.DAL.Repo.Implementation
         {
             return await _context.DonationRequests
                 .Include(dr => dr.BloodRequest)
+                    .ThenInclude(br => br.Hospital)
+                .Include(dr => dr.BloodRequest)
+                    .ThenInclude(br => br.BloodType)
+                .Include(dr => dr.BloodBank)
                 .FirstOrDefaultAsync(dr => dr.Id == donationRequestId);
         }
 

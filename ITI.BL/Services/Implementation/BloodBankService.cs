@@ -142,16 +142,18 @@ namespace ITI.BLL.Services.Implementation
         // Donations
         // =====================================================================
 
-        public async Task<BloodBankRecordDonationVM?> GetRecordDonationFormAsync(Guid userId)
+        public async Task<BloodBankRecordDonationVM?> GetRecordDonationFormAsync(Guid userId, bool sameCityOnly = false)
         {
             var bank = await _bloodBankRepo.GetByUserIdAsync(userId);
             if (bank == null) return null;
 
-            var donors = await _bloodBankRepo.GetDonorsByCityAsync(bank.City);
+            var donors = await _bloodBankRepo.GetDonorsByCityAsync(sameCityOnly ? bank.City : null);
 
             return new BloodBankRecordDonationVM
             {
                 DonationDate = DateTime.UtcNow.Date,
+                SameCityOnly = sameCityOnly,
+                BankCity = bank.City,
                 AvailableDonors = donors.Select(MapDonorOption).ToList()
             };
         }

@@ -30,6 +30,7 @@
 
                         <form asp-action="RecordDonation" method="post">
                             @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="SameCityOnly" />
 
                             <div class="mb-3">
                                 <label asp-for="DonorId" class="form-label small fw-semibold"></label>
@@ -38,13 +39,24 @@
                                     @foreach (var donor in Model.AvailableDonors)
                                     {
                                         <option value="@donor.DonorId">
-                                            @donor.FullName — @donor.BloodTypeName@(donor.IsEligible ? "" : " (not eligible yet)")
+                                            @donor.FullName — @donor.BloodTypeName@(string.IsNullOrWhiteSpace(donor.City) ? "" : $" · {donor.City}")@(donor.IsEligible ? "" : " (not eligible yet)")
                                         </option>
                                     }
                                 </select>
                                 <span asp-validation-for="DonorId" class="text-danger small"></span>
                                 <div class="form-text">
-                                    Showing donors registered in your city who have set a blood type.
+                                    @if (Model.SameCityOnly)
+                                    {
+                                        <text>Showing donors registered in @(string.IsNullOrEmpty(Model.BankCity) ? "your city" : Model.BankCity) who have set a blood type.</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Showing donors in all cities who have set a blood type.</text>
+                                    }
+                                    <a asp-action="RecordDonation" asp-route-sameCityOnly="@(!Model.SameCityOnly)"
+                                       class="d-inline-block text-decoration-none">
+                                        @(Model.SameCityOnly ? "Show donors in all cities →" : "← Show only my city")
+                                    </a>
                                 </div>
                             </div>
 
@@ -92,7 +104,8 @@
                         <p class="text-uppercase text-muted small fw-bold mb-1">Donor Pool</p>
                         <h2 class="h5 fw-bold mb-1">Eligibility</h2>
                         <p class="text-muted small mb-4">
-                            @eligibleCount of @Model.AvailableDonors.Count donors in your city can donate today.
+                            @eligibleCount of @Model.AvailableDonors.Count donors
+                            @(Model.SameCityOnly ? "in your city" : "across all cities") can donate today.
                         </p>
 
                         @if (!Model.AvailableDonors.Any())
@@ -101,7 +114,7 @@
                                 <div class="icon-circle bg-light mx-auto mb-3">👤</div>
                                 <h6 class="fw-bold">No donors found</h6>
                                 <p class="text-muted small mb-0">
-                                    No active donors in your city have set a blood type yet.
+                                    No active donors @(Model.SameCityOnly ? "in your city" : "") have set a blood type yet.
                                 </p>
                             </div>
                         }
@@ -115,6 +128,10 @@
                                         <div class="flex-grow-1">
                                             <div class="fw-semibold small">@donor.FullName</div>
                                             <div class="text-muted" style="font-size:.75rem;">
+                                                @if (!string.IsNullOrWhiteSpace(donor.City))
+                                                {
+                                                    <text>📍 @donor.City · </text>
+                                                }
                                                 @if (donor.LastDonationDate.HasValue)
                                                 {
                                                     <text>Last donated @donor.LastDonationDate.Value.ToString("dd MMM yyyy")</text>

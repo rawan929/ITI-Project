@@ -5,6 +5,7 @@
     ViewData["Title"] = "Blood Requests";
 
     var respondedIds = (HashSet<Guid>)(ViewBag.RespondedRequestIds ?? new HashSet<Guid>());
+    var declinedIds = (HashSet<Guid>)(ViewBag.DeclinedRequestIds ?? new HashSet<Guid>());
 }
 
 <style>
@@ -114,7 +115,11 @@
                                             </span>
                                         </td>
                                         <td class="text-end">
-                                            @if (alreadyResponded)
+                                            @if (declinedIds.Contains(request.Id))
+                                            {
+                                                <span class="badge rounded-pill bg-light text-muted">You declined</span>
+                                            }
+                                            else if (alreadyResponded)
                                             {
                                                 <span class="badge rounded-pill bg-success-subtle text-success-emphasis">
                                                     ✔ Already Responded

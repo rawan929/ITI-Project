@@ -41,7 +41,8 @@ namespace ITI.BLL.Services.Implementation
                     Id = Guid.NewGuid(),
                     BloodRequestId = bloodRequestId,
                     DonorId = d.DonorId,
-                    Status = DonationRequestStatus.Invited
+                    Status = DonationRequestStatus.Invited,
+                    BloodBankId = d.SuggestedBloodBankId
                 })
                 .ToList();
 

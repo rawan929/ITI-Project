@@ -18,7 +18,7 @@ namespace ITI.BLL.Services.Interface
         Task<AdjustInventoryResult> AdjustInventoryAsync(Guid userId, BloodBankAdjustInventoryVM model);
 
         // Donations
-        Task<BloodBankRecordDonationVM?> GetRecordDonationFormAsync(Guid userId);
+        Task<BloodBankRecordDonationVM?> GetRecordDonationFormAsync(Guid userId, bool sameCityOnly = false);
         Task<RecordDonationResult> RecordDonationAsync(Guid userId, BloodBankRecordDonationVM model);
         Task<List<BloodBankDonationVM>> GetDonationHistoryAsync(Guid userId);
 

@@ -4,6 +4,7 @@ using ITI.DAL.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Security.Claims;
 
 namespace ITI_Project.Controllers
@@ -47,9 +48,94 @@ namespace ITI_Project.Controllers
             if (donorId == null) return RedirectToAction("Login", "Account");
 
             var result = await _donationRequestService.AcceptInvitationAsync(donorId.Value, id);
-            SetInvitationMessage(result, "Thank you! The hospital can now see that you accepted.");
 
+            if (result == RespondToInvitationResult.Success)
+            {
+                // Straight to booking a slot instead of back to the inbox —
+                // accepting isn't done until there's an actual appointment.
+                return RedirectToAction(nameof(Schedule), new { id });
+            }
+
+            SetInvitationMessage(result, string.Empty);
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Schedule(Guid id)
+        {
+            var donorId = await GetCurrentDonorIdAsync();
+            if (donorId == null) return RedirectToAction("Login", "Account");
+
+            var invitation = await _context.DonationRequests
+                .Include(x => x.BloodBank)
+                .Include(x => x.BloodRequest).ThenInclude(x => x.Hospital)
+                .Include(x => x.BloodRequest).ThenInclude(x => x.BloodType)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (invitation == null || invitation.DonorId != donorId) return NotFound();
+
+            if (invitation.Status != DonationRequestStatus.Accepted)
+            {
+                // Already scheduled, declined, or still just invited — nothing to book here.
+                return RedirectToAction(nameof(Index));
+            }
+
+            var availableBanks = await _donationRequestService.GetAvailableBloodBanksAsync(invitation.Id);
+
+            if (!availableBanks.Any())
+            {
+                TempData["ErrorMessage"] = "No blood bank is available to handle this donation right now. Please contact support.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var vm = new ScheduleAppointmentVM
+            {
+                DonationRequestId = invitation.Id,
+                HospitalName = invitation.BloodRequest.Hospital.Name,
+                BloodTypeName = invitation.BloodRequest.BloodType.Name,
+                AvailableBloodBanks = availableBanks,
+                // Preselect the previously suggested bank if it's still in the list, else the top (nearest) one.
+                BloodBankId = availableBanks.Any(b => b.BloodBankId == invitation.BloodBankId)
+                    ? invitation.BloodBankId
+                    : availableBanks.First().BloodBankId
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Schedule(ScheduleAppointmentVM model)
+        {
+            var donorId = await GetCurrentDonorIdAsync();
+            if (donorId == null) return RedirectToAction("Login", "Account");
+
+            if (!ModelState.IsValid)
+            {
+                model.AvailableBloodBanks = await _donationRequestService.GetAvailableBloodBanksAsync(model.DonationRequestId);
+                return View(model);
+            }
+
+            var result = await _donationRequestService
+                .ScheduleAppointmentAsync(donorId.Value, model.DonationRequestId, model.BloodBankId!.Value, model.AppointmentDate);
+
+            if (result == ScheduleAppointmentResult.Success)
+            {
+                TempData["SuccessMessage"] = "Appointment booked! The blood bank can now see it on their schedule.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.AddModelError(string.Empty, result switch
+            {
+                ScheduleAppointmentResult.DateInThePast => "Please choose a future date and time.",
+                ScheduleAppointmentResult.AlreadyScheduled => "You already booked an appointment for this request.",
+                ScheduleAppointmentResult.NotAccepted => "You need to accept this request first.",
+                ScheduleAppointmentResult.NoBloodBankAssigned => "That blood bank isn't available anymore. Please choose another one.",
+                _ => "We couldn't book that appointment."
+            });
+
+            model.AvailableBloodBanks = await _donationRequestService.GetAvailableBloodBanksAsync(model.DonationRequestId);
+            return View(model);
         }
 
         [HttpPost]

@@ -73,6 +73,14 @@ namespace ITI.BLL.ViewModel
         public bool OverrideEligibility { get; set; }
 
         public List<BloodBankDonorOptionVM> AvailableDonors { get; set; } = new();
+
+        /// <summary>
+        /// When true, only donors in the blood bank's own city are listed.
+        /// Defaults to false: a donor may donate at any blood bank, whatever their city.
+        /// </summary>
+        public bool SameCityOnly { get; set; } = false;
+
+        public string BankCity { get; set; } = string.Empty;
     }
 
     public class BloodBankDonorOptionVM

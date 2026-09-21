@@ -163,7 +163,7 @@ namespace ITI.DAL.Repo.Implementation
                 .ToListAsync();
         }
 
-        public async Task<List<Donor>> GetDonorsByCityAsync(string city)
+        public async Task<List<Donor>> GetDonorsByCityAsync(string? city)
         {
             var query = _context.Donors
                 .Include(d => d.User)
@@ -172,7 +172,10 @@ namespace ITI.DAL.Repo.Implementation
 
             if (!string.IsNullOrWhiteSpace(city))
             {
-                query = query.Where(d => d.User.City == city);
+                // Case/whitespace-insensitive match — "Cairo" vs "cairo" vs " Cairo "
+                // are the same city and shouldn't quietly hide donors from the pool.
+                var normalizedCity = city.Trim().ToLower();
+                query = query.Where(d => d.User.City != null && d.User.City.Trim().ToLower() == normalizedCity);
             }
 
             return await query

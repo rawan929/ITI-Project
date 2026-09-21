@@ -15,11 +15,25 @@ namespace ITI.BLL.Services.Implementation
     {
         private readonly AppDbcontext _context;
         private readonly IDonorMatchingRepo _matchingRepo;
+        private readonly IBloodBankRepo _bloodBankRepo;
 
-        public DonationRequestService(AppDbcontext context, IDonorMatchingRepo matchingRepo)
+        public DonationRequestService(AppDbcontext context, IDonorMatchingRepo matchingRepo, IBloodBankRepo bloodBankRepo)
         {
             _context = context;
             _matchingRepo = matchingRepo;
+            _bloodBankRepo = bloodBankRepo;
+        }
+
+        private async Task<Guid?> SuggestBloodBankIdAsync(string city)
+        {
+            var sameCity = await _bloodBankRepo.GetApprovedBloodBanksAsync(city);
+            var bank = sameCity.FirstOrDefault();
+            if (bank == null)
+            {
+                var any = await _bloodBankRepo.GetApprovedBloodBanksAsync(null);
+                bank = any.FirstOrDefault();
+            }
+            return bank?.Id;
         }
 
         // ------------------------------------------------------------------
@@ -34,6 +48,7 @@ namespace ITI.BLL.Services.Implementation
 
             var request = await _context.BloodRequests
                 .Include(r => r.BloodType)
+                .Include(r => r.Hospital)
                 .FirstOrDefaultAsync(r => r.Id == requestId);
 
             if (donor?.BloodType == null || request?.BloodType == null)
@@ -58,6 +73,7 @@ namespace ITI.BLL.Services.Implementation
                 if (existingResponse.Status == DonationRequestStatus.Invited)
                 {
                     existingResponse.Status = DonationRequestStatus.Accepted;
+                    existingResponse.BloodBankId ??= await SuggestBloodBankIdAsync(request.Hospital?.City ?? string.Empty);
                     await _context.SaveChangesAsync();
                     return DonationResponseResult.Success;
                 }
@@ -70,7 +86,8 @@ namespace ITI.BLL.Services.Implementation
                 Id = Guid.NewGuid(),
                 DonorId = donorId,
                 BloodRequestId = requestId,
-                Status = DonationRequestStatus.Accepted
+                Status = DonationRequestStatus.Accepted,
+                BloodBankId = await SuggestBloodBankIdAsync(request.Hospital?.City ?? string.Empty)
             };
 
             await _context.DonationRequests.AddAsync(response);
@@ -99,12 +116,73 @@ namespace ITI.BLL.Services.Implementation
                     UnitsRequired = dr.BloodRequest?.UnitsRequired ?? 0,
                     Urgency = dr.BloodRequest?.Urgency ?? string.Empty,
                     RequestStatus = dr.BloodRequest?.Status ?? string.Empty,
-                    ResponseStatus = dr.Status
+                    ResponseStatus = dr.Status,
+                    BloodBankId = dr.BloodBankId,
+                    BloodBankName = dr.BloodBank?.Name ?? string.Empty,
+                    BloodBankCity = dr.BloodBank?.City ?? string.Empty,
+                    AppointmentDate = dr.Appointment?.AppointmentDate
                 })
                 // Things needing an answer first, emergencies above those.
                 .OrderByDescending(x => x.IsAwaitingReply)
                 .ThenByDescending(x => x.Urgency == "Emergency")
                 .ToList();
+        }
+
+        public async Task<List<BloodBankOptionVM>> GetAvailableBloodBanksAsync(Guid donationRequestId)
+        {
+            var invitation = await _matchingRepo.GetDonationRequestAsync(donationRequestId);
+            var city = invitation?.BloodRequest?.Hospital?.City ?? string.Empty;
+
+            // All approved banks, so the donor has a real choice — banks in the
+            // hospital's city are listed first for convenience.
+            var banks = await _bloodBankRepo.GetApprovedBloodBanksAsync(null);
+
+            return banks
+                .OrderByDescending(b => !string.IsNullOrEmpty(city) && b.City == city)
+                .ThenBy(b => b.Name)
+                .Select(b => new BloodBankOptionVM
+                {
+                    BloodBankId = b.Id,
+                    Name = b.Name,
+                    City = b.City,
+                    Address = b.Address,
+                    Phone = b.Phone
+                })
+                .ToList();
+        }
+
+        public async Task<ScheduleAppointmentResult> ScheduleAppointmentAsync(
+            Guid donorId, Guid donationRequestId, Guid bloodBankId, DateTime appointmentDate)
+        {
+            var invitation = await _matchingRepo.GetDonationRequestAsync(donationRequestId);
+
+            if (invitation == null) return ScheduleAppointmentResult.NotFound;
+            if (invitation.DonorId != donorId) return ScheduleAppointmentResult.NotYours;
+            if (invitation.Status != DonationRequestStatus.Accepted) return ScheduleAppointmentResult.NotAccepted;
+            if (invitation.AppointmentId != null) return ScheduleAppointmentResult.AlreadyScheduled;
+
+            var bank = await _context.BloodBanks.FirstOrDefaultAsync(b => b.Id == bloodBankId && b.IsApproved);
+            if (bank == null) return ScheduleAppointmentResult.NoBloodBankAssigned;
+
+            if (appointmentDate < DateTime.UtcNow) return ScheduleAppointmentResult.DateInThePast;
+
+            var appointment = new Appointment
+            {
+                Id = Guid.NewGuid(),
+                DonorId = donorId,
+                BloodBankId = bank.Id,
+                AppointmentDate = appointmentDate,
+                Status = "Scheduled"
+            };
+
+            await _context.Appointments.AddAsync(appointment);
+
+            invitation.AppointmentId = appointment.Id;
+            invitation.BloodBankId = bank.Id; // keep in sync with the bank the donor actually chose
+            invitation.Status = DonationRequestStatus.Scheduled;
+
+            await _context.SaveChangesAsync();
+            return ScheduleAppointmentResult.Success;
         }
 
         public Task<RespondToInvitationResult> AcceptInvitationAsync(Guid donorId, Guid donationRequestId)

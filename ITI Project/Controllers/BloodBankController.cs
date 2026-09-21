@@ -130,12 +130,12 @@ namespace ITI_Project.Controllers
         // ------------------------------------------------------------------
 
         [HttpGet]
-        public async Task<IActionResult> RecordDonation()
+        public async Task<IActionResult> RecordDonation(bool sameCityOnly = false)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Account");
 
-            var model = await _bloodBankService.GetRecordDonationFormAsync(userId.Value);
+            var model = await _bloodBankService.GetRecordDonationFormAsync(userId.Value, sameCityOnly);
             if (model == null) return NotFound();
 
             return View(model);
@@ -318,8 +318,9 @@ namespace ITI_Project.Controllers
             Guid userId,
             BloodBankRecordDonationVM model)
         {
-            var fresh = await _bloodBankService.GetRecordDonationFormAsync(userId);
+            var fresh = await _bloodBankService.GetRecordDonationFormAsync(userId, model.SameCityOnly);
             model.AvailableDonors = fresh?.AvailableDonors ?? new List<BloodBankDonorOptionVM>();
+            model.BankCity = fresh?.BankCity ?? string.Empty;
             return model;
         }
     }
