@@ -1,0 +1,84 @@
+@model ITI.BLL.ViewModel.AdminDashboardVm
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Analytics";
+}
+
+<!-- Tailwind CSS (this page's classes rely on it) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = { corePlugins: { preflight: false } }
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    .bg-admin-dark { background-color: #0A1628; }
+    .text-rose-brand { color: #C41230; }
+    .bg-rose-brand { background-color: #C41230; }
+</style>
+
+<!-- Dark Admin Header -->
+<div class="bg-admin-dark text-white -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 px-6 sm:px-8 pt-8 pb-0 mb-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-rose-brand rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-900/40">
+                    <i class="fa-solid fa-chart-line text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">System Administration</p>
+                    <h1 class="text-2xl font-bold tracking-tight font-serif">BloodLink<span class="text-rose-brand">+</span> Analytics</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex gap-8 text-sm font-medium border-b border-slate-800">
+            <a asp-controller="Admin" asp-action="Index" class="pb-3 text-slate-400 hover:text-slate-200 transition">Overview</a>
+            <a asp-controller="Admin" asp-action="Analytics" class="pb-3 border-b-2 border-rose-brand text-white font-semibold">Analytics</a>
+            <a asp-controller="Admin" asp-action="Users" class="pb-3 text-slate-400 hover:text-slate-200 transition">Users</a>
+            <a asp-controller="Admin" asp-action="PendingHospitals" class="pb-3 text-slate-400 hover:text-slate-200 transition">Approvals</a>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+            <p class="text-xs text-slate-400 uppercase font-bold">Approved Hospitals</p>
+            <div class="text-3xl font-bold font-serif text-slate-900 mt-2">@Model.ApprovedHospitals</div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+            <p class="text-xs text-slate-400 uppercase font-bold">Approved Blood Banks</p>
+            <div class="text-3xl font-bold font-serif text-slate-900 mt-2">@Model.ApprovedBloodBanks</div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+            <p class="text-xs text-slate-400 uppercase font-bold">Active Requests</p>
+            <div class="text-3xl font-bold font-serif text-slate-900 mt-2">@Model.ActiveBloodRequests</div>
+        </div>
+    </div>
+
+    <!-- System Performance Chart -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <h3 class="font-bold text-slate-900 mb-4">Request vs Fulfillment Breakdown</h3>
+        <div class="h-72">
+            <canvas id="analyticsBarChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    new Chart(document.getElementById('analyticsBarChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [
+                { label: 'Requests', data: [120, 150, 180, 200, 170, 210], backgroundColor: '#0A1628' },
+                { label: 'Fulfilled', data: [100, 130, 160, 190, 150, 195], backgroundColor: '#C41230' }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+</script>

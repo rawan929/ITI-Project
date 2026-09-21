@@ -1,0 +1,171 @@
+@model ITI.BLL.ViewModel.MatchingResultVM
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Matched Donors";
+
+    var contacted = Model.Donors.Count(d => d.AlreadyContacted);
+    var fresh = Model.Donors.Count - contacted;
+}
+
+<style>
+    .hosp-page { --brand-red:#b3122b; --brand-red-dark:#8f0e22; --dark-navy:#0f1420; font-family:'Segoe UI', Tahoma, sans-serif; }
+    .hosp-page .btn-brand { background:var(--brand-red); border-color:var(--brand-red); color:#fff; font-weight:700; }
+    .hosp-page .btn-brand:hover { background:var(--brand-red-dark); border-color:var(--brand-red-dark); color:#fff; }
+    .hosp-page .card { border-radius:12px; border:1px solid #e5e7eb; }
+    .hosp-page .icon-circle { width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; }
+    .hosp-page .avatar-circle { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(179,18,43,.08); color:var(--brand-red); font-weight:700; font-size:.85rem; }
+    .hosp-page .hosp-header { background:var(--dark-navy); color:#fff; margin:-1rem -1rem 2rem -1rem; padding:2rem 1.5rem 0; }
+    .hosp-page .hosp-nav-link { color:rgba(255,255,255,.6); text-decoration:none; font-size:.9rem; padding-bottom:1rem; display:inline-block; }
+</style>
+
+<div class="hosp-page">
+
+    <div class="hosp-header">
+        <div class="container-fluid" style="max-width:1200px;">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="icon-circle" style="background:var(--brand-red);">
+                    <span style="font-size:1.4rem;">🎯</span>
+                </div>
+                <div>
+                    <p class="mb-0 small text-white-50">Hospital Services</p>
+                    <h1 class="h4 fw-bold mb-0" style="font-family:Georgia, serif;">BloodLink+ Hospital</h1>
+                    <p class="mb-0 small text-white-50">Matched Donors</p>
+                </div>
+            </div>
+            <div class="d-flex gap-4">
+                <a asp-action="Dashboard" class="hosp-nav-link">Overview</a>
+                <a asp-action="CreateRequest" class="hosp-nav-link">Create Request</a>
+                @if ((bool)(ViewBag.IsHospitalApproved ?? false))
+                {
+                    <a asp-action="Profile" class="hosp-nav-link">Profile</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid" style="max-width:1200px;">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success border-0 rounded-3 small">@TempData["SuccessMessage"]</div>
+        }
+
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+                    <div>
+                        <p class="text-uppercase text-muted small fw-bold mb-1">Request Matching</p>
+                        <h2 class="h5 fw-bold mb-1">
+                            🩸 @Model.RequestedBloodType · @Model.UnitsRequired unit@(Model.UnitsRequired == 1 ? "" : "s")
+                        </h2>
+                        <p class="text-muted small mb-0">
+                            @Model.Donors.Count eligible donor(s) match this request —
+                            @contacted already contacted, @fresh not yet.
+                        </p>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <form asp-action="NotifyMatchedDonors" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.BloodRequestId" />
+                            <button type="submit" class="btn btn-brand" disabled="@(fresh == 0)">
+                                Notify Remaining
+                            </button>
+                        </form>
+                        <a asp-action="ViewResponses" asp-route-id="@Model.BloodRequestId"
+                           class="btn btn-outline-secondary">View Responses</a>
+                    </div>
+                </div>
+
+                <p class="text-muted small">
+                    Donors of these types can supply @Model.RequestedBloodType:
+                    <strong>@string.Join(", ", Model.CompatibleDonorTypes)</strong>.
+                    Donors within 90 days of their last donation are excluded.
+                </p>
+
+                @if (!Model.Donors.Any())
+                {
+                    <div class="text-center py-5">
+                        <div class="icon-circle bg-light mx-auto mb-3">🎯</div>
+                        <h5 class="fw-bold">No Matching Donors</h5>
+                        <p class="text-muted small mb-0">
+                            No eligible donor with a compatible blood type is available right now.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr class="text-uppercase text-muted small">
+                                    <th>Donor</th>
+                                    <th>Blood Type</th>
+                                    <th>City</th>
+                                    <th>Phone</th>
+                                    <th>Last Donation</th>
+                                    <th class="text-end">Contacted</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var donor in Model.Donors)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="avatar-circle">@donor.BloodTypeName</div>
+                                                <div>
+                                                    <div class="fw-bold small">@donor.FullName</div>
+                                                    <div class="text-muted" style="font-size:.75rem;">
+                                                        @donor.TotalDonations previous donation(s)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill" style="background:rgba(179,18,43,.1); color:var(--brand-red);">
+                                                @donor.BloodTypeName
+                                            </span>
+                                        </td>
+                                        <td>
+                                            📍 @donor.City
+                                            @if (donor.IsSameCity)
+                                            {
+                                                <span class="badge rounded-pill bg-success bg-opacity-25 text-success-emphasis ms-1" style="font-size:.65rem;">Same city</span>
+                                            }
+                                        </td>
+                                        <td>📞 @(string.IsNullOrWhiteSpace(donor.PhoneNumber) ? "—" : donor.PhoneNumber)</td>
+                                        <td>
+                                            @(donor.LastDonationDate?.ToString("dd MMM yyyy") ?? "Never")
+                                        </td>
+                                        <td class="text-end">
+                                            @if (donor.AlreadyContacted)
+                                            {
+                                                <span class="badge rounded-pill bg-success bg-opacity-25 text-success-emphasis">✔ Notified</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge rounded-pill bg-light text-muted">Not yet</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-muted small mb-0 mt-3">
+                        Ranking is by city, then exact blood type, then longest time since last
+                        donation. Real distance ranking needs Latitude/Longitude on Donor and
+                        Hospital — the database only stores a city today.
+                    </p>
+                }
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a asp-action="Dashboard" class="text-decoration-none small fw-semibold">← Back to Dashboard</a>
+        </div>
+    </div>
+</div>

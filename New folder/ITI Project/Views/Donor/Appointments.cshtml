@@ -1,0 +1,182 @@
+@model ITI.BLL.ViewModel.DonorAppointmentPageVM
+
+@{
+    ViewData["Title"] = "My Appointments";
+    var upcoming = Model.MyAppointments.Count(a => a.CanCancel);
+}
+
+<style>
+    .donor-header { background:#0f1420; color:#fff; padding:30px 40px; }
+    .donor-avatar { width:60px; height:60px; background:#b3122b; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.3rem; }
+    .donor-header .welcome-text { color:#b7bac2; font-size:.85rem; margin-bottom:2px; }
+    .donor-header h3 { font-family:Georgia, serif; margin-bottom:2px; }
+    .nav-tabs-custom { background:#0f1420; padding:0 40px; border-bottom:1px solid rgba(255,255,255,.1); }
+    .nav-tabs-custom a { color:#9a9da5; text-decoration:none; padding:14px 4px; margin-right:30px; display:inline-block; font-size:.9rem; border-bottom:2px solid transparent; }
+    .nav-tabs-custom a.active { color:#fff; border-bottom-color:#b3122b; font-weight:600; }
+    .appt-container { padding:30px 40px; background:#f5f6f8; min-height:60vh; }
+    .appt-card { background:#fff; border-radius:10px; padding:24px; border:1px solid #eaeaea; height:100%; }
+    .btn-brand { background:#b3122b; border-color:#b3122b; color:#fff; font-weight:700; }
+    .btn-brand:hover { background:#8f0e22; border-color:#8f0e22; color:#fff; }
+</style>
+
+<div class="donor-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-3">
+        <div class="donor-avatar">📅</div>
+        <div>
+            <p class="welcome-text mb-0">Appointments</p>
+            <h3 class="mb-0">@Model.DonorName</h3>
+            <p class="welcome-text mb-0">@upcoming upcoming booking@(upcoming == 1 ? "" : "s")</p>
+        </div>
+    </div>
+</div>
+
+<div class="nav-tabs-custom">
+    <a asp-action="Dashboard" asp-controller="Donor">Overview</a>
+    <a asp-action="Index" asp-controller="DonationRequest">My Requests</a>
+    <a asp-action="History" asp-controller="Donor">History</a>
+    <a asp-action="Appointments" asp-controller="Donor" class="active">Appointments</a>
+</div>
+
+<div class="appt-container">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 rounded-3 small">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger border-0 rounded-3 small">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="row g-3">
+
+        <!-- Booking form -->
+        <div class="col-12 col-lg-5">
+            <div class="appt-card">
+                <p class="text-uppercase text-muted small fw-bold mb-1">Book a Slot</p>
+                <h2 class="h5 fw-bold mb-1">New Appointment</h2>
+                <p class="text-muted small mb-4">
+                    Pick an approved blood bank and a time. They'll see your booking on their
+                    appointments board.
+                </p>
+
+                @if (!Model.AvailableBloodBanks.Any())
+                {
+                    <p class="text-muted small mb-3">
+                        No approved blood bank @(Model.SameCityOnly ? $"in {Model.City} " : "")is
+                        available right now.
+                    </p>
+                    <a asp-action="Appointments" asp-route-sameCityOnly="@(!Model.SameCityOnly)"
+                       class="btn btn-outline-secondary btn-sm">
+                        @(Model.SameCityOnly ? "Show all cities" : "Show my city only")
+                    </a>
+                }
+                else
+                {
+                    <form asp-action="BookAppointment" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Blood Bank</label>
+                            <select name="BloodBankId" class="form-select" required>
+                                <option value="">Choose a blood bank</option>
+                                @foreach (var bank in Model.AvailableBloodBanks)
+                                {
+                                    <option value="@bank.BloodBankId">@bank.Name — @bank.City</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-semibold">Date &amp; Time</label>
+                            <input type="datetime-local" name="AppointmentDate" class="form-control"
+                                   value="@Model.Booking.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-brand w-100">Book Appointment</button>
+                    </form>
+
+                    <a asp-action="Appointments" asp-route-sameCityOnly="@(!Model.SameCityOnly)"
+                       class="d-inline-block mt-3 small text-decoration-none">
+                        @(Model.SameCityOnly ? "Show blood banks in all cities →" : "Show only blood banks in my city →")
+                    </a>
+                }
+            </div>
+        </div>
+
+        <!-- My appointments -->
+        <div class="col-12 col-lg-7">
+            <div class="appt-card">
+                <p class="text-uppercase text-muted small fw-bold mb-1">My Bookings</p>
+                <h2 class="h5 fw-bold mb-4">Appointment History</h2>
+
+                @if (!Model.MyAppointments.Any())
+                {
+                    <div class="text-center py-5">
+                        <div class="mb-2" style="font-size:2rem;">📅</div>
+                        <h6 class="fw-bold">No Appointments Yet</h6>
+                        <p class="text-muted small mb-0">Book a slot to donate at a nearby blood bank.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr class="text-uppercase text-muted small">
+                                    <th>Blood Bank</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var appointment in Model.MyAppointments)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">@appointment.BloodBankName</div>
+                                            <div class="text-muted" style="font-size:.75rem;">@appointment.BloodBankCity</div>
+                                        </td>
+                                        <td>@appointment.AppointmentDate.ToString("dd MMM yyyy · HH:mm")</td>
+                                        <td>
+                                            @switch (appointment.Status)
+                                            {
+                                                case "Completed":
+                                                    <span class="badge rounded-pill bg-success bg-opacity-25 text-success-emphasis">✔ Completed</span>
+                                                    break;
+                                                case "Cancelled":
+                                                    <span class="badge rounded-pill" style="background:rgba(179,18,43,.1); color:#b3122b;">Cancelled</span>
+                                                    break;
+                                                case "NoShow":
+                                                    <span class="badge rounded-pill bg-warning bg-opacity-25 text-warning-emphasis">No show</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge rounded-pill bg-primary bg-opacity-25 text-primary-emphasis">Scheduled</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            @if (appointment.CanCancel)
+                                            {
+                                                <form asp-action="CancelAppointment" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@appointment.AppointmentId" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">—</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
