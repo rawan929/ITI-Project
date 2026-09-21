@@ -15,16 +15,19 @@ namespace ITI.BLL.Services.Implementation
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IDonorRepo _donorRepo;
         private readonly IHospitalRepo _hospitalRepo;
+        private readonly IBloodBankRepo _bloodBankRepo;
 
         public AuthService(UserManager<ApplicationUser> userManager,
                             SignInManager<ApplicationUser> signInManager,
                             IDonorRepo donorRepo,
-                            IHospitalRepo hospitalRepo)
+                            IHospitalRepo hospitalRepo,
+                            IBloodBankRepo bloodBankRepo)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _donorRepo = donorRepo;
             _hospitalRepo = hospitalRepo;
+            _bloodBankRepo = bloodBankRepo;
         }
 
         public async Task<AuthResult> RegisterDonor(RegisterViewModel model)
@@ -101,6 +104,46 @@ namespace ITI.BLL.Services.Implementation
             await _signInManager.SignInAsync(user, isPersistent: false);
 
             return new AuthResult { Succeeded = true, UserType = "Hospital" };
+        }
+
+        public async Task<AuthResult> RegisterBloodBank(RegisterViewModel model)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FullName = model.FullName,
+                PhoneNumber = model.Phone,
+                City = model.City,
+                UserType = "BloodBank",
+                IsActive = true
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (!result.Succeeded)
+            {
+                return new AuthResult { Succeeded = false, Errors = ConvertErrors(result) };
+            }
+
+            await _userManager.AddToRoleAsync(user, "BloodBank");
+
+            var bloodBank = new BloodBank
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Name = model.FullName,
+                Address = string.Empty,
+                City = model.City,
+                Phone = model.Phone,
+                IsApproved = false
+            };
+
+            await _bloodBankRepo.AddBloodBankAsync(bloodBank);
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
+            return new AuthResult { Succeeded = true, UserType = "BloodBank" };
         }
 
         public async Task<AuthResult> Login(LoginViewModel model)

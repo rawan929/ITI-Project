@@ -81,6 +81,34 @@ namespace ITI.BLL.Services.Implementation
             }).ToList();
         }
 
+        public async Task<List<PendingApprovalsVM>> GetPendingBloodBanksAsync()
+        {
+            var pendingBanks = await _bloodBankRepo.GetPendingBloodBanksAsync();
+
+            return pendingBanks.Select(b => new PendingApprovalsVM
+            {
+                Id = b.Id,
+                Name = b.Name,
+                City = b.City,
+                Address = b.Address,
+                Type = "BloodBank",
+                Email = b.User?.Email ?? "",
+                PhoneNumber = b.User?.PhoneNumber ?? "",
+                IsApproved = b.IsApproved
+            }).ToList();
+        }
+
+        public async Task<List<PendingApprovalsVM>> GetPendingApprovalsAsync()
+        {
+            var hospitals = await GetPendingHospitalsAsync();
+            var bloodBanks = await GetPendingBloodBanksAsync();
+
+            return hospitals.Concat(bloodBanks)
+                            .OrderBy(x => x.Type)
+                            .ThenBy(x => x.Name)
+                            .ToList();
+        }
+
         public async Task<bool> ApproveHospitalAsync(Guid hospitalId)
         {
             var hospital = await _hospitalRepo.GetByIdAsync(hospitalId);

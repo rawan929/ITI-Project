@@ -52,8 +52,9 @@
 
 <div class="nav-tabs-custom">
     <a asp-action="Dashboard" asp-controller="Donor">Overview</a>
+    <a asp-action="Index" asp-controller="DonationRequest">My Requests</a>
     <a asp-action="History" asp-controller="Donor" class="active">History</a>
-    <a href="#" onclick="alert('Coming soon - waiting on Blood Bank module'); return false;">Appointments</a>
+    <a asp-action="Appointments" asp-controller="Donor">Appointments</a>
 </div>
 
 <div class="history-container">

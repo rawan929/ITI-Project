@@ -17,6 +17,7 @@ namespace ITI.BLL.Services.Interface
     {
         Task<AuthResult> RegisterDonor(RegisterViewModel model);
         Task<AuthResult> RegisterHospital(RegisterViewModel model);
+        Task<AuthResult> RegisterBloodBank(RegisterViewModel model);
         Task<AuthResult> Login(LoginViewModel model);
         Task Logout();
     }

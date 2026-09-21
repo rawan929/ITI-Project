@@ -20,6 +20,9 @@ namespace ITI.BLL.ViewModel
 
         public bool IsActive { get; set; }
 
+        /// <summary>Invited / Accepted / Declined.</summary>
+        public string ResponseStatus { get; set; } = string.Empty;
+
         public string Initials
         {
             get

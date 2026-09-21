@@ -1,24 +1,31 @@
-﻿using ITI.BLL.Services.Interface;
+using ITI.BLL.Services.Interface;
 using ITI.BLL.ViewModel;
 using ITI.DAL.Context;
 using ITI.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace ITI.BLL.Services.Implementation
 {
     public class BloodRequestService : IBloodRequestService
     {
         private readonly AppDbcontext _context;
+        private readonly IDonorMatchingService _matchingService;
+        private readonly INotificationService _notificationService;
 
-        public BloodRequestService(AppDbcontext context)
+        public BloodRequestService(
+            AppDbcontext context,
+            IDonorMatchingService matchingService,
+            INotificationService notificationService)
         {
             _context = context;
+            _matchingService = matchingService;
+            _notificationService = notificationService;
         }
 
-        public async Task<CreateRequestResult> CreateRequestAsync(
+        public async Task<CreateRequestOutcome> CreateRequestAsync(
             CreateBloodRequestViewModel model,
             Guid hospitalId)
         {
@@ -27,12 +34,12 @@ namespace ITI.BLL.Services.Implementation
 
             if (hospital == null)
             {
-                return CreateRequestResult.HospitalNotFound;
+                return new CreateRequestOutcome { Result = CreateRequestResult.HospitalNotFound };
             }
 
             if (!hospital.IsApproved)
             {
-                return CreateRequestResult.HospitalNotApproved;
+                return new CreateRequestOutcome { Result = CreateRequestResult.HospitalNotApproved };
             }
 
             var request = new BloodRequest
@@ -49,7 +56,38 @@ namespace ITI.BLL.Services.Implementation
 
             await _context.SaveChangesAsync();
 
-            return CreateRequestResult.Success;
+            // The request exists now, so find donors and invite them. This is the
+            // step that turns a stored row into something donors actually see.
+            var matches = await _matchingService.FindMatchingDonorsAsync(request.Id);
+            var notified = 0;
+
+            if (matches != null)
+            {
+                notified = await _notificationService
+                    .NotifyMatchingDonorsAsync(request.Id, matches.Donors);
+            }
+
+            return new CreateRequestOutcome
+            {
+                Result = CreateRequestResult.Success,
+                BloodRequestId = request.Id,
+                MatchedDonors = matches?.Donors.Count ?? 0,
+                NotifiedDonors = notified
+            };
+        }
+
+        public async Task<int> MatchAndNotifyAsync(Guid bloodRequestId)
+        {
+            var matches = await _matchingService.FindMatchingDonorsAsync(bloodRequestId);
+            if (matches == null) return 0;
+
+            return await _notificationService
+                .NotifyMatchingDonorsAsync(bloodRequestId, matches.Donors);
+        }
+
+        public async Task<MatchingResultVM?> PreviewMatchesAsync(Guid bloodRequestId)
+        {
+            return await _matchingService.FindMatchingDonorsAsync(bloodRequestId);
         }
 
         public async Task<IEnumerable<BloodRequest>> GetActiveRequestsAsync(

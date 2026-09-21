@@ -76,6 +76,28 @@ namespace ITI_Project.Controllers
             return View(requests);
         }
 
+        /// <summary>Shows who the system matched for a request, without inviting anyone new.</summary>
+        public async Task<IActionResult> MatchedDonors(Guid id)
+        {
+            var matches = await _bloodRequestService.PreviewMatchesAsync(id);
+            if (matches == null) return NotFound();
+
+            return View(matches);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NotifyMatchedDonors(Guid id)
+        {
+            var notified = await _bloodRequestService.MatchAndNotifyAsync(id);
+
+            TempData["SuccessMessage"] = notified > 0
+                ? $"{notified} additional donor(s) were notified."
+                : "No new donors to notify for this request.";
+
+            return RedirectToAction(nameof(MatchedDonors), new { id });
+        }
+
         public async Task<IActionResult> ViewResponses(Guid id)
         {
             var responses = await _donationRequestService
@@ -111,10 +133,12 @@ namespace ITI_Project.Controllers
 
             var result = await _bloodRequestService.CreateRequestAsync(model, hospital.Id);
 
-            switch (result)
+            switch (result.Result)
             {
                 case CreateRequestResult.Success:
-                    TempData["SuccessMessage"] = "Blood request created successfully!";
+                    TempData["SuccessMessage"] = result.NotifiedDonors > 0
+                        ? $"Blood request created. {result.NotifiedDonors} matching donor(s) were notified."
+                        : "Blood request created, but no eligible matching donor was found yet.";
                     return RedirectToAction(nameof(Dashboard));
 
                 case CreateRequestResult.HospitalNotApproved:

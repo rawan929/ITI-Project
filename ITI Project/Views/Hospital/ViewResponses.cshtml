@@ -45,7 +45,7 @@
             <div class="card-body p-4">
                 <p class="text-uppercase text-muted small fw-bold mb-1">Blood Request</p>
                 <h2 class="h5 fw-bold mb-1">Donor Responses</h2>
-                <p class="text-muted small mb-4">Donors who responded to this blood request.</p>
+                <p class="text-muted small mb-4">Donors invited for this request, and how they answered.</p>
 
                 @if (Model == null || Model.Count == 0)
                 {
@@ -66,6 +66,7 @@
                                     <th>City</th>
                                     <th>Phone</th>
                                     <th>Donations</th>
+                                    <th>Response</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -86,6 +87,20 @@
                                         <td>📍 @donor.City</td>
                                         <td>📞 @(string.IsNullOrWhiteSpace(donor.PhoneNumber) ? "—" : donor.PhoneNumber)</td>
                                         <td>@donor.TotalDonations</td>
+                                        <td>
+                                            @switch (donor.ResponseStatus)
+                                            {
+                                                case "Accepted":
+                                                    <span class="badge rounded-pill bg-success bg-opacity-25 text-success-emphasis">✔ Accepted</span>
+                                                    break;
+                                                case "Declined":
+                                                    <span class="badge rounded-pill bg-light text-muted">Declined</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge rounded-pill bg-primary bg-opacity-25 text-primary-emphasis">Invited</span>
+                                                    break;
+                                            }
+                                        </td>
                                         <td>
                                             @if (donor.IsActive)
                                             {

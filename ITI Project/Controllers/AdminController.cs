@@ -42,8 +42,9 @@ namespace ITI_Project.Controllers
 
         public async Task<IActionResult> PendingHospitals()
         {
-            var pendingHospitals = await _adminService.GetPendingHospitalsAsync();
-            return View(pendingHospitals);
+            // Hospitals and blood banks both land on this screen.
+            var pendingApprovals = await _adminService.GetPendingApprovalsAsync();
+            return View(pendingApprovals);
         }
 
         [HttpPost]

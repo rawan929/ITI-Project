@@ -18,7 +18,7 @@ namespace ITI_Project.Data
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-            string[] roles = { "Admin", "Donor", "Hospital" };
+            string[] roles = { "Admin", "Donor", "Hospital", "BloodBank" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))

@@ -1,4 +1,4 @@
-using ITI.BLL.Services.Implementation;
+﻿using ITI.BLL.Services.Implementation;
 using ITI.BLL.Services.Interface;
 using ITI.DAL.Context;
 using ITI.DAL.Models;
@@ -24,6 +24,7 @@ namespace ITI_Project
             builder.Services.AddScoped<IHospitalRepo, HospitalRepo>();
             builder.Services.AddScoped<IBloodBankRepo, BloodBankRepo>();
             builder.Services.AddScoped<IDonorRepo, DonorRepo>();
+            builder.Services.AddScoped<IDonorMatchingRepo, DonorMatchingRepo>();
 
             // Services
             builder.Services.AddScoped<IAdminService, AdminService>();
@@ -32,6 +33,10 @@ namespace ITI_Project
             builder.Services.AddScoped<IDonationRequestService, DonationRequestService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IDonorService, DonorService>();
+            builder.Services.AddScoped<IBloodBankService, BloodBankService>();
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+            builder.Services.AddScoped<IDonorMatchingService, DonorMatchingService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
             //  Identity
             builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
             {

@@ -112,7 +112,12 @@
                                 </a>
                             </li>
                             <li><a class="dropdown-item" href="#">Hospital Dashboard</a></li>
-                            <li><a class="dropdown-item" href="#">Blood Bank Dashboard</a></li>
+                            <li>
+                                    <a class="dropdown-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "BloodBank" ? "active-dropdown-item" : "")"
+                                       asp-controller="BloodBank" asp-action="Dashboard">
+                                        Blood Bank Dashboard
+                                    </a>
+                                </li>
                             <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Admin Dashboard</a></li>
                         </ul>
                     </li>

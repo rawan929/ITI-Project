@@ -45,7 +45,8 @@ namespace ITI.PL.Controllers
             {
                 "Donor" => await _authService.RegisterDonor(model),
                 "Hospital" => await _authService.RegisterHospital(model),
-                _ => new AuthResult { Succeeded = false, Errors = new[] { "Invalid account type or Blood Bank registration not ready yet" } }
+                "BloodBank" => await _authService.RegisterBloodBank(model),
+                _ => new AuthResult { Succeeded = false, Errors = new[] { "Invalid account type" } }
             };
 
             if (result.Succeeded)
@@ -72,6 +73,7 @@ namespace ITI.PL.Controllers
                 "Admin" => RedirectToAction("Index", "Admin"),
                 "Donor" => RedirectToAction("Dashboard", "Donor"),
                 "Hospital" => RedirectToAction("Dashboard", "Hospital"),
+                "BloodBank" => RedirectToAction("Dashboard", "BloodBank"),
                 _ => RedirectToAction("Index", "Home")
             };
         }

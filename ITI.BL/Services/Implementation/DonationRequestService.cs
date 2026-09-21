@@ -1,40 +1,30 @@
-﻿using ITI.BLL.Services.Interface;
+using ITI.BLL.Services.Interface;
 using ITI.BLL.ViewModel;
 using ITI.DAL.Context;
 using ITI.DAL.Models;
+using ITI.DAL.Repo.Interface;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ITI.BLL.Services.Implementation
 {
     public class DonationRequestService : IDonationRequestService
     {
         private readonly AppDbcontext _context;
+        private readonly IDonorMatchingRepo _matchingRepo;
 
-        private static readonly Dictionary<string, HashSet<string>> CompatibilityMap = new()
-        {
-            ["O-"] = new HashSet<string> { "O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+" },
-            ["O+"] = new HashSet<string> { "O+", "A+", "B+", "AB+" },
-            ["A-"] = new HashSet<string> { "A-", "A+", "AB-", "AB+" },
-            ["A+"] = new HashSet<string> { "A+", "AB+" },
-            ["B-"] = new HashSet<string> { "B-", "B+", "AB-", "AB+" },
-            ["B+"] = new HashSet<string> { "B+", "AB+" },
-            ["AB-"] = new HashSet<string> { "AB-", "AB+" },
-            ["AB+"] = new HashSet<string> { "AB+" },
-        };
-
-        public DonationRequestService(AppDbcontext context)
+        public DonationRequestService(AppDbcontext context, IDonorMatchingRepo matchingRepo)
         {
             _context = context;
+            _matchingRepo = matchingRepo;
         }
 
-        private static bool IsCompatible(string donorBloodType, string requestedBloodType)
-        {
-            return CompatibilityMap.TryGetValue(donorBloodType, out var compatibleTypes)
-                   && compatibleTypes.Contains(requestedBloodType);
-        }
+        // ------------------------------------------------------------------
+        // Donor volunteering for a request they found on the public list
+        // ------------------------------------------------------------------
 
         public async Task<DonationResponseResult> RespondToRequestAsync(Guid donorId, Guid requestId)
         {
@@ -51,7 +41,7 @@ namespace ITI.BLL.Services.Implementation
                 return DonationResponseResult.NotFound;
             }
 
-            if (!IsCompatible(donor.BloodType.Name, request.BloodType.Name))
+            if (!BloodCompatibility.IsCompatible(donor.BloodType.Name, request.BloodType.Name))
             {
                 return DonationResponseResult.IncompatibleBloodType;
             }
@@ -63,6 +53,15 @@ namespace ITI.BLL.Services.Implementation
 
             if (existingResponse != null)
             {
+                // The donor was already invited by the matching service and is now
+                // volunteering from the public list — treat that as accepting.
+                if (existingResponse.Status == DonationRequestStatus.Invited)
+                {
+                    existingResponse.Status = DonationRequestStatus.Accepted;
+                    await _context.SaveChangesAsync();
+                    return DonationResponseResult.Success;
+                }
+
                 return DonationResponseResult.AlreadyResponded;
             }
 
@@ -71,7 +70,7 @@ namespace ITI.BLL.Services.Implementation
                 Id = Guid.NewGuid(),
                 DonorId = donorId,
                 BloodRequestId = requestId,
-                Status = "Pending"
+                Status = DonationRequestStatus.Accepted
             };
 
             await _context.DonationRequests.AddAsync(response);
@@ -79,6 +78,72 @@ namespace ITI.BLL.Services.Implementation
 
             return DonationResponseResult.Success;
         }
+
+        // ------------------------------------------------------------------
+        // Donor inbox
+        // ------------------------------------------------------------------
+
+        public async Task<List<DonorInboxItemVM>> GetInboxAsync(Guid donorId)
+        {
+            var rows = await _matchingRepo.GetDonationRequestsForDonorAsync(donorId);
+
+            return rows
+                .Select(dr => new DonorInboxItemVM
+                {
+                    DonationRequestId = dr.Id,
+                    BloodRequestId = dr.BloodRequestId,
+                    HospitalName = dr.BloodRequest?.Hospital?.Name ?? string.Empty,
+                    HospitalCity = dr.BloodRequest?.Hospital?.City ?? string.Empty,
+                    HospitalPhone = dr.BloodRequest?.Hospital?.Phone ?? string.Empty,
+                    BloodTypeName = dr.BloodRequest?.BloodType?.Name ?? string.Empty,
+                    UnitsRequired = dr.BloodRequest?.UnitsRequired ?? 0,
+                    Urgency = dr.BloodRequest?.Urgency ?? string.Empty,
+                    RequestStatus = dr.BloodRequest?.Status ?? string.Empty,
+                    ResponseStatus = dr.Status
+                })
+                // Things needing an answer first, emergencies above those.
+                .OrderByDescending(x => x.IsAwaitingReply)
+                .ThenByDescending(x => x.Urgency == "Emergency")
+                .ToList();
+        }
+
+        public Task<RespondToInvitationResult> AcceptInvitationAsync(Guid donorId, Guid donationRequestId)
+            => AnswerInvitationAsync(donorId, donationRequestId, DonationRequestStatus.Accepted);
+
+        public Task<RespondToInvitationResult> DeclineInvitationAsync(Guid donorId, Guid donationRequestId)
+            => AnswerInvitationAsync(donorId, donationRequestId, DonationRequestStatus.Declined);
+
+        private async Task<RespondToInvitationResult> AnswerInvitationAsync(
+            Guid donorId,
+            Guid donationRequestId,
+            string newStatus)
+        {
+            var invitation = await _matchingRepo.GetDonationRequestAsync(donationRequestId);
+
+            if (invitation == null) return RespondToInvitationResult.NotFound;
+
+            // A donor can only answer their own invitation.
+            if (invitation.DonorId != donorId) return RespondToInvitationResult.NotYours;
+
+            if (invitation.Status != DonationRequestStatus.Invited)
+            {
+                return RespondToInvitationResult.AlreadyAnswered;
+            }
+
+            if (invitation.BloodRequest != null && invitation.BloodRequest.Status != "Pending")
+            {
+                return RespondToInvitationResult.RequestClosed;
+            }
+
+            invitation.Status = newStatus;
+            await _matchingRepo.SaveChangesAsync();
+
+            return RespondToInvitationResult.Success;
+        }
+
+        // ------------------------------------------------------------------
+        // Hospital side
+        // ------------------------------------------------------------------
 
         public async Task<List<DonorResponseViewModel>> GetResponsesForRequestAsync(Guid requestId)
         {
@@ -96,11 +161,16 @@ namespace ITI.BLL.Services.Implementation
                City = x.Donor.User.City,
                PhoneNumber = x.Donor.User.PhoneNumber ?? string.Empty,
                TotalDonations = x.Donor.Donations.Count,
-               IsActive = x.Donor.User.IsActive
+               IsActive = x.Donor.User.IsActive,
+               ResponseStatus = x.Status
            })
            .ToListAsync();
 
-            return responses;
+            // Donors who said yes belong at the top of the hospital's list.
+            return responses
+                .OrderByDescending(r => r.ResponseStatus == DonationRequestStatus.Accepted)
+                .ThenBy(r => r.ResponseStatus == DonationRequestStatus.Declined)
+                .ToList();
         }
 
         public async Task<List<DonorResponseHistoryVM>> GetDonorResponseHistoryAsync(Guid donorId)
