@@ -34,7 +34,12 @@ namespace ITI.DAL.Repo.Interface
         Task<Donor?> GetDonorByIdAsync(Guid donorId);
         Task<Donor?> GetDonorByUserIdAsync(Guid userId);
         Task<List<Appointment>> GetAppointmentsByDonorAsync(Guid donorId);
-        Task<List<Donor>> GetDonorsByCityAsync(string? city);
+        /// <summary>
+        /// Donors who have (or had) an appointment at this blood bank - the only donors
+        /// that should be selectable when recording a walk-in donation, since a donation
+        /// is filed against a real booked visit, not any donor in the system.
+        /// </summary>
+        Task<List<Donor>> GetDonorsWithAppointmentAsync(Guid bloodBankId, string? city);
 
         // ---- Hospital blood requests the bank can fulfil ----
         Task<List<BloodRequest>> GetPendingRequestsAsync(string? city);

@@ -109,7 +109,18 @@ namespace ITI.BLL.Services.Implementation
                 query = query.Where(r => r.BloodTypeId == bloodTypeId.Value);
             }
 
-            return await query.ToListAsync();
+            // A request some donor has already accepted (or scheduled) is spoken for -
+            // it shouldn't still be offered to every other donor as something to respond to.
+            var claimedRequestIds = await _context.DonationRequests
+                .Where(dr => dr.Status == DonationRequestStatus.Accepted
+                             || dr.Status == DonationRequestStatus.Scheduled)
+                .Select(dr => dr.BloodRequestId)
+                .Distinct()
+                .ToListAsync();
+
+            return await query
+                .Where(r => !claimedRequestIds.Contains(r.Id))
+                .ToListAsync();
         }
 
         public async Task<bool> CloseRequestAsync(Guid requestId)

@@ -147,7 +147,7 @@ namespace ITI.BLL.Services.Implementation
             var bank = await _bloodBankRepo.GetByUserIdAsync(userId);
             if (bank == null) return null;
 
-            var donors = await _bloodBankRepo.GetDonorsByCityAsync(sameCityOnly ? bank.City : null);
+            var donors = await _bloodBankRepo.GetDonorsWithAppointmentAsync(bank.Id, sameCityOnly ? bank.City : null);
 
             return new BloodBankRecordDonationVM
             {

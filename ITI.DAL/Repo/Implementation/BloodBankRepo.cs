@@ -163,12 +163,18 @@ namespace ITI.DAL.Repo.Implementation
                 .ToListAsync();
         }
 
-        public async Task<List<Donor>> GetDonorsByCityAsync(string? city)
+        public async Task<List<Donor>> GetDonorsWithAppointmentAsync(Guid bloodBankId, string? city)
         {
+            var donorIds = await _context.Appointments
+                .Where(a => a.BloodBankId == bloodBankId)
+                .Select(a => a.DonorId)
+                .Distinct()
+                .ToListAsync();
+
             var query = _context.Donors
                 .Include(d => d.User)
                 .Include(d => d.BloodType)
-                .Where(d => d.BloodTypeId != null && d.User.IsActive);
+                .Where(d => d.BloodTypeId != null && d.User.IsActive && donorIds.Contains(d.Id));
 
             if (!string.IsNullOrWhiteSpace(city))
             {
